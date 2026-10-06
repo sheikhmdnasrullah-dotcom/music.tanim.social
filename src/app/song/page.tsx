@@ -138,6 +138,19 @@ export default function SongPage() {
             </section>
           );
         })}
+
+        <div className="pt-6 border-t border-border">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Want to write your own song in this key? The structure above is a
+            complete template.
+          </p>
+          <Link
+            href="/your-song"
+            className="inline-block mt-2 text-sm font-medium underline underline-offset-2"
+          >
+            Steal this structure →
+          </Link>
+        </div>
       </div>
     </div>
   );

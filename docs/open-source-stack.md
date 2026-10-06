@@ -1,126 +1,54 @@
-# Open-Source Stack
+# Open-Source Music Stack
 
-This document records the open-source libraries used in this project, their purposes, and integration details.
+Library-by-library rationale and current usage. Versions are read from
+`package.json`. The honesty rule for the whole stack: a library is only
+counted as “in use” if a feature that reaches the learner imports it.
 
-## Audio Playback & Waveform
+## Core
 
-### wavesurfer.js
-- **Repository**: https://github.com/katspaugh/wavesurfer.js
-- **Version**: 8.x
-- **License**: BSD-3-Clause
-- **Purpose**: Audio waveform visualization, playback, seeking, and regions
-- **Integration**: `src/components/music/AudioPlayer.tsx`, `src/hooks/use-song-player.ts`
-- **Why selected**: Actively maintained, TypeScript API, React integration via `@wavesurfer/react`, supports Web Audio backend for accurate playback control, regions plugin for looping
+| Library | Version | Role | Status |
+| --- | --- | --- | --- |
+| `next` | 16.3.8 | App framework (App Router, Turbopack build) | In use |
+| `react` / `react-dom` | 19.2.8 | UI | In use |
+| `typescript` | ^5 | Type safety, run in tests via Node 24 type stripping | In use |
+| `tailwindcss` + `@tailwindcss/postcss` | ^4 | Utility-first CSS, `@theme inline` tokens | In use |
 
-### @wavesurfer/react
-- **Repository**: https://github.com/katspaugh/wavesurfer.js
-- **Version**: 1.x
-- **License**: BSD-3-Clause
-- **Purpose**: React wrapper for wavesurfer.js
-- **Integration**: Used as peer dependency of wavesurfer.js
+## Music
 
-## Pitch Detection
+| Library | Version | Role | Status |
+| --- | --- | --- | --- |
+| `pitchy` | ^4.1.0 | McLeod Pitch Method (MPM) autocorrelation pitch detector — the ear for tuner, note-practice, and SingCheck | In use (`src/hooks/use-pitch-tracker.ts`) |
+| `tonal` | ^6.5.0 | Music-theory helpers (note names, intervals, scale degrees) | Available; theory logic in `src/lib/music/notes.ts` / `theory.ts` is intentionally self-contained and tested |
+| `tone` | ^15.1.22 | Web Audio synth/scheduling | Available; the metronome and guitar synth are hand-rolled Web Audio (`src/lib/audio/`) and do not import it |
 
-### pitchy
-- **Repository**: https://github.com/ianprime0509/pitchy
-- **Version**: 4.1.0
-- **License**: Zero Clause BSD
-- **Purpose**: Real-time pitch detection using McLeod Pitch Method (MPM)
-- **Integration**: `src/hooks/use-pitch-tracker.ts`
-- **Why selected**: Lightweight, fast (McLeod Pitch Method is robust for monophonic pitch), works in browser and Node, simple API, 11k weekly downloads
+## UI
 
-## Audio Time-Stretching (Future)
+| Library | Version | Role | Status |
+| --- | --- | --- | --- |
+| `lucide-react` | ^1.52.0 | Icons (transport, nav) | In use |
+| `class-variance-authority` + `clsx` + `tailwind-merge` | — | `cn()` and variant-based components | In use |
 
-### @soundtouchjs/audio-worklet
-- **Repository**: https://github.com/cutterbl/SoundTouchJS
-- **Version**: 2.x
-- **License**: MIT
-- **Purpose**: Pitch-preserving time-stretching via AudioWorklet
-- **Integration**: Reserved for Phase 2 tempo control with pitch preservation
-- **Why selected**: Modern AudioWorklet implementation (replaces deprecated ScriptProcessorNode), independent tempo and pitch control, good for vocal practice
+## No backend, no models
 
-## Music Notation (Future)
+- There is no database, no Prisma, no ORM, and no account system. Progress
+  lives in `localStorage` (`src/lib/practice/progress-store.ts`).
+- No MediaPipe, no ML runtime, and no generative-audio model is installed
+  or loaded in the browser. Generation is behind provider adapters that
+  report unavailable until a real, licensed service is configured
+  (`docs/MUSIC_GENERATION_COMPARISON.md`, `docs/MUSIC_MODEL_LICENSES.md`).
 
-### alphaTab
-- **Repository**: https://github.com/CoderLine/alphaTab
-- **Version**: 1.8.x
-- **License**: MPL-2.0
-- **Purpose**: Guitar tablature, MusicXML, Guitar Pro file rendering with browser MIDI playback
-- **Integration**: Reserved for Phase 4 (guitar tab display, MusicXML import)
-- **Why selected**: Supports Guitar Pro 3-8, MusicXML, AlphaTex, built-in MIDI synthesizer, TypeScript, actively maintained (published 2 days ago)
+## Removed / no longer referenced
 
-### OpenSheetMusicDisplay (OSMD)
-- **Repository**: https://github.com/opensheetmusicdisplay/opensheetmusicdisplay
-- **Version**: 2.x
-- **License**: BSD-3-Clause
-- **Purpose**: MusicXML rendering in browser using VexFlow
-- **Integration**: Reserved for Phase 4 (alternative MusicXML renderer)
-- **Why selected**: TypeScript-based, actively maintained, supports guitar tabs from MusicXML
+Earlier versions of the app scaffolded heavier audio tooling that the
+current implementation does not import:
 
-## UI & Design
+- `wavesurfer.js` / `@wavesurfer/react` — the player uses synchronized
+  `HTMLAudioElement` stems with a `requestAnimationFrame` master clock.
+- `@coderline/alphatab` — tab rendering was dropped with the dead
+  `src/lib/guitar/` scaffold.
+- `@soundtouchjs/audio-worklet` — slow practice is done with
+  pitch-preserving `playbackRate`, not offline time-stretching.
 
-### Tailwind CSS
-- **Version**: 4.x
-- **License**: MIT
-- **Purpose**: Utility-first CSS framework
-- **Integration**: `src/app/globals.css`, all components
-
-### clsx
-- **Version**: 2.x
-- **License**: MIT
-- **Purpose**: Conditional className utility
-- **Integration**: `src/lib/utils.ts`
-
-### tailwind-merge
-- **Version**: 3.x
-- **License**: MIT
-- **Purpose**: Merge Tailwind CSS classes with conflict resolution
-- **Integration**: `src/lib/utils.ts`
-
-### lucide-react
-- **Version**: 1.52.x
-- **License**: ISC
-- **Purpose**: Icon library
-- **Integration**: Reserved for UI icons
-
-## Singing Voice Synthesis (Future)
-
-### DiffSinger (OpenVPI maintained)
-- **Repository**: https://github.com/openvpi/DiffSinger
-- **License**: Apache-2.0
-- **Purpose**: Singing voice synthesis via shallow diffusion mechanism
-- **Integration**: Reserved for Phase 6 (AI guide vocal generation)
-- **Why selected**: Actively maintained fork, 44.1kHz output, production-compatible
-
-### Seed-VC
-- **Repository**: https://github.com/Plachtaa/seed-vc
-- **License**: GPL-3.0
-- **Purpose**: Zero-shot voice conversion and singing voice conversion
-- **Integration**: Reserved for Phase 6 (user voice cloning)
-- **Why selected**: Zero-shot capability, supports singing voice conversion, real-time capable
-
-## Framework
-
-### Next.js
-- **Version**: 16.3.8
-- **License**: MIT
-- **Purpose**: React framework with SSR, routing, and optimization
-- **Integration**: Project root
-
-### React
-- **Version**: 19.2.8
-- **License**: MIT
-- **Purpose**: UI library
-- **Integration**: All components
-
-### TypeScript
-- **Version**: 5.x
-- **License**: Apache-2.0
-- **Purpose**: Type-safe JavaScript
-- **Integration**: All source files
-
-### Turbopack
-- **Version**: Bundled with Next.js 16
-- **License**: MIT
-- **Purpose**: Fast development bundler
-- **Integration**: Next.js config
+These packages still appear in `package.json` and should be pruned in a
+dedicated dependency-hygiene pass (they are not imported anywhere under
+`src/` today).
