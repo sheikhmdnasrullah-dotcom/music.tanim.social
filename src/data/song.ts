@@ -23,6 +23,10 @@ const RAW_SONG: Song = {
   key: 'D minor',
   timeSignature: '4/4',
   totalDuration: 0,
+  // Standalone AI-generated full take. It is a separate arrangement (213.0s) and does
+  // not share the practice timeline's section offsets (176.2s), so it is played
+  // end-to-end and never used to drive per-section lyric sync.
+  fullSongAudioFile: '/audio/before-i-learned-the-words-v1.0.mp3',
   sections: [
     {
       id: 'verse-1',
@@ -985,6 +989,13 @@ function withTimings(raw: Song): Song {
 }
 
 export const SONG: Song = withTimings(RAW_SONG);
+
+/**
+ * Length of `SONG.fullSongAudioFile`, measured from the file itself (213.039s).
+ * Kept separate from `FULL_SONG_DURATION` on purpose: that one describes the
+ * practice timeline, this one describes the standalone recording.
+ */
+export const FULL_SONG_AUDIO_DURATION = 213.039;
 
 export function getSectionAudio(
   section: SongSection,

@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { SONG } from '@/data/song';
+import { SONG, FULL_SONG_AUDIO_DURATION } from '@/data/song';
+import { FULL_SONG_DURATION } from '@/data/timings';
 import { CHORDS } from '@/data/chords';
 import {
   SECTION_PROGRESSIONS,
@@ -11,6 +12,14 @@ import {
 } from '@/data/song-guitar';
 import { useProgress } from '@/state/ProgressContext';
 import { cn } from '@/lib/utils';
+import { FullSongPlayer } from '@/components/music/FullSongPlayer';
+
+/** Seconds -> "m:ss". */
+function formatClock(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
 
 function prettyChord(id: string): string {
   const map: Record<string, string> = {
@@ -45,7 +54,59 @@ export default function SongPage() {
         </p>
       </div>
 
+      {SONG.fullSongAudioFile && (
+        <div className="mb-10">
+          <FullSongPlayer
+            src={SONG.fullSongAudioFile}
+            title={`${SONG.title} — full song`}
+            durationLabel={formatClock(FULL_SONG_AUDIO_DURATION)}
+            note={`A standalone AI-generated take of the whole song, ${formatClock(FULL_SONG_AUDIO_DURATION)} long. It is a separate arrangement from the practice stems — whose timeline runs ${formatClock(FULL_SONG_DURATION)} — so it plays start to finish without lyric highlighting. The section timings below belong to those practice stems, not to this recording.`}
+          />
+        </div>
+      )}
+
       <div className="space-y-8">
+        <section className="space-y-5 border-b border-border pb-8" aria-labelledby="song-context">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              About the song
+            </p>
+            <h2 id="song-context" className="font-display text-2xl tracking-tight mt-1">
+              A memory you did not realize was becoming a goodbye
+            </h2>
+          </div>
+
+          <div className="space-y-4 text-sm text-muted-foreground leading-relaxed max-w-xl">
+            <p>
+              “Before I Learned the Words” is an intimate, melancholic acoustic song about
+              losing someone before you are emotionally ready to understand that they are
+              leaving. It is not dramatic heartbreak or anger. It is the quiet aftermath:
+              ordinary life continuing while someone who once filled every ordinary moment is
+              suddenly gone.
+            </p>
+            <p>
+              The song begins in a quiet room on a rainy morning — cold coffee by the window,
+              an empty chair across the table, and the instinct to almost say their name. From
+              there, small fragments surface: rain, hands held, a familiar song, and
+              conversations that never finished. The narrator is not trying to erase the
+              person or move on quickly. He is learning that the final ordinary moment was
+              already a goodbye.
+            </p>
+            <p>
+              Keep the vocal close, vulnerable, and conversational. Let the verses breathe,
+              let the chorus open without becoming theatrical, and strip the bridge back to
+              the most exposed realization: <em>“I didn’t know the last time was the last.”</em>
+              Warm fingerpicked or lightly strummed acoustic guitar should lead, with subtle
+              piano, bass, and restrained organic percussion widening the emotional moments.
+            </p>
+          </div>
+
+          <p className="border-l-2 border-accent pl-4 text-sm italic text-foreground leading-relaxed max-w-lg">
+            The final line, “I still sit across from you,” should feel almost whispered —
+            leaving the listener with the rain, the room, and the empty chair.
+          </p>
+        </section>
+
         {SONG.sections.map((section) => {
           const prog = SECTION_PROGRESSIONS[section.id];
           const req = sectionRequirements(section.id);
