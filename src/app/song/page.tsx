@@ -5,6 +5,8 @@ import { SONG } from '@/data/song';
 import { CHORDS } from '@/data/chords';
 import {
   SECTION_PROGRESSIONS,
+  TRANSITION_MAP,
+  STRUM_STAGE_MAP,
   sectionRequirements,
 } from '@/data/song-guitar';
 import { useProgress } from '@/state/ProgressContext';
@@ -62,9 +64,6 @@ export default function SongPage() {
             missing.push(strumStage ? `strumming: ${strumStage.name}` : req.strumStage);
           }
 
-          const linesSolid = section.lines.filter(
-            (_, i) => isSolidOf(`line:${section.id}:${i}`),
-          ).length;
           const ready = missing.length === 0;
           const progChords = prog?.chords ?? [];
 
