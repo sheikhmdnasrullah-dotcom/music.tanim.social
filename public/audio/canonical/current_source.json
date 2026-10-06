@@ -1,32 +1,44 @@
 {
   "source": "yue2",
-  "candidate": "yue-01",
-  "seed": 42,
-  "source_file": "generations/short_test/yue-01/full_mix.flac",
+  "candidate": "yue-02",
+  "seed": 108,
+  "source_file": "generations/short_test/yue-02/full_mix.flac",
   "sample_rate": 48000,
-  "normalized": true,
+  "verse_start_offset": 11.0,
   "sections": [
     {
       "id": "verse-1",
-      "start": 0.0,
-      "end": 28.788,
-      "duration": 28.788,
-      "samples": 1381824
+      "start": 11.0,
+      "end": 39.788,
+      "duration": 28.787999999999997,
+      "samples": 1381823
     },
     {
       "id": "pre-chorus-1",
-      "start": 28.788,
-      "end": 42.683,
-      "duration": 13.895,
-      "samples": 666960
+      "start": 39.788,
+      "end": 53.68299999999999,
+      "duration": 13.894999999999996,
+      "samples": 666959
     },
     {
       "id": "chorus-1",
-      "start": 42.683,
-      "end": 71.011,
+      "start": 53.683,
+      "end": 82.011,
       "duration": 28.327999999999996,
       "samples": 1359743
     }
   ],
-  "note": "YuE2 generates full mix; existing DSP stems preserved for instrumental/melody_ref/user_voice"
+  "quality_comparison": {
+    "yue-01": {
+      "vocal_detection": 0.782,
+      "peak": 1.0,
+      "duration": 138.56
+    },
+    "yue-02": {
+      "vocal_detection": 0.813,
+      "peak": 0.958,
+      "duration": 112.4
+    }
+  },
+  "note": "yue-02 selected over yue-01: better vocal detection, no clipping, shorter duration"
 }
