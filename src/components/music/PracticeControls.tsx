@@ -10,11 +10,8 @@ export function PracticeControls() {
     setMode,
     setStemVolume,
     setTempo,
-    setLoopMode,
     play,
-    pause,
     seekToTime,
-    isPlaying,
   } = useSongPlayer();
 
   const [currentStep, setCurrentStep] = useState(1);

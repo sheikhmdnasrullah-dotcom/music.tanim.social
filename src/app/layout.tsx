@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 import { Providers } from "@/state/Providers";
 import { AppNav } from "@/components/ui/AppNav";
@@ -12,6 +13,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -34,17 +41,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: React.PropsWithChildren<Record<string, unknown>>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={cn(geistSans.variable, geistMono.variable, instrumentSerif.variable, "h-full antialiased")}
+    >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>
           <AppNav />
           <main className="flex-1">{children}</main>
-          <footer className="border-t border-border py-4">
-            <div className="max-w-6xl mx-auto px-4 text-center text-xs text-muted-foreground">
-              Personal practice studio — guide vocals, melody contours, and a beginner guitar
-              path. Progress is stored only on this device.
-            </div>
-          </footer>
         </Providers>
       </body>
     </html>

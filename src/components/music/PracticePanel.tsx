@@ -1,14 +1,12 @@
 'use client';
 
 import { useSongPlayer } from '@/state/SongPlayerContext';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export function PracticePanel() {
   const {
     voiceSource,
     setVoiceSource,
-    guideSpeed,
     setGuideSpeed,
     tempo,
     setTempo,
@@ -16,7 +14,6 @@ export function PracticePanel() {
     setLoopMode,
     stems,
     setStemVolume,
-    mode,
     setMode,
   } = useSongPlayer();
 

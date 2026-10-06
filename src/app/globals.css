@@ -3,13 +3,16 @@
 :root {
   --background: #ffffff;
   --foreground: #0a0a0a;
-  --muted: #f5f5f5;
+  --muted: #fafaf9;
   --muted-foreground: #737373;
   --border: #e5e5e5;
-  --accent: #d97706;
+  --accent: #b45309;
+  --accent-foreground: #ffffff;
   --accent-light: #fef3c7;
-  --success: #16a34a;
-  --danger: #dc2626;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #15803d;
+  --ring: #d97706;
 }
 
 @theme inline {
@@ -19,17 +22,24 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-border: var(--border);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-accent-light: var(--accent-light);
-  /* Theme variables only become Tailwind utilities once they are registered here.
-     These were referenced by pages (bg-primary, text-success, bg-danger …) but never
-     declared, so the classes silently produced no styles. */
-  --color-primary: var(--foreground);
-  --color-primary-foreground: #ffffff;
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  /* Alias kept because several pages (guitar tuner, note practice, transitions) still
+     use the `danger` vocabulary. Without this registration those classes silently
+     produced no styles. Same colour as `destructive`. */
+  --color-danger: var(--destructive);
   --color-success: var(--success);
-  --color-danger: var(--danger);
-  --color-warning: var(--accent);
+  --color-ring: var(--ring);
+  --color-primary: var(--foreground);
+  --color-primary-foreground: var(--background);
+  --radius-base: 6px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-instrument-serif);
 }
 
 body {
@@ -38,6 +48,7 @@ body {
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
 }
 
 * {
@@ -50,4 +61,24 @@ body {
   }
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@utility animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
 }

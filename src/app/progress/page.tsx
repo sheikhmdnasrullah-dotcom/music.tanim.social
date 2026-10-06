@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { SONG } from '@/data/song';
-import { CURRICULUM, CURRICULUM_IDS, getMilestones } from '@/lib/practice/plan';
-import { masteryCounts, type Mastery } from '@/lib/practice/progress-store';
+import { CURRICULUM_IDS, getMilestones } from '@/lib/practice/plan';
+import { masteryCounts } from '@/lib/practice/progress-store';
 import { useProgress } from '@/state/ProgressContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

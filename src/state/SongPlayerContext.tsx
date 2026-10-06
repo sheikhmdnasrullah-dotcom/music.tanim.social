@@ -5,11 +5,20 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import { SONG } from '@/data/song';
-import type { LyricLine, SongSection, PracticeMode } from '@/types/song';
+import type { SongSection, PracticeMode } from '@/types/song';
+import {
+  buildSectionTiming,
+  findLineAtTime,
+  findSyllableAtTime,
+  getPhraseBounds,
+  type SectionTiming,
+  type TimedLine,
+} from '@/lib/music/timing';
 
 export type VoiceSource = 'male' | 'user';
 export type LoopMode = 'off' | 'line' | 'section';
@@ -40,7 +49,7 @@ export interface SongPlayerValue {
   currentLineId: string | null;
   currentSyllableText: string | null;
   currentNoteName: string | null;
-  lines: LyricLine[];
+  lines: TimedLine[];
   stems: StemVolumes;
 
   // Actions
@@ -79,26 +88,6 @@ export function useSongPlayer(): SongPlayerValue {
 
 function sectionById(id: string): SongSection {
   return SONG.sections.find((s) => s.id === id) ?? SONG.sections[0];
-}
-
-export function lineAtTime(lines: LyricLine[], t: number): LyricLine | null {
-  for (const line of lines) {
-    if (t >= line.startTime && t < line.startTime + line.duration) return line;
-  }
-  const last = lines[lines.length - 1];
-  if (last && t >= last.startTime && t < last.startTime + last.duration + 0.3) return last;
-  return null;
-}
-
-export function syllableAtTime(line: LyricLine | null, t: number) {
-  if (!line) return null;
-  const lineRelTime = t - line.startTime;
-  for (const syl of line.syllables) {
-    if (lineRelTime >= syl.startTime && lineRelTime < syl.startTime + syl.duration) {
-      return syl;
-    }
-  }
-  return null;
 }
 
 type PitchPreservingAudio = HTMLAudioElement & { preservesPitch?: boolean };
@@ -152,9 +141,12 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
   const pauseRef = useRef<() => void>(() => undefined);
   const seekRef = useRef<(time: number) => void>(() => undefined);
 
-  // Active section data
+  // Active section data. The timeline carries the real line/syllable timings
+  // derived from the guide-vocal audio (scripts/build-timings.mjs); the raw
+  // section.lines in song.ts still carry authoring placeholder times.
   const currentSection = sectionById(sectionId);
-  const lines = currentSection.lines;
+  const timing: SectionTiming = useMemo(() => buildSectionTiming(currentSection), [currentSection]);
+  const lines: TimedLine[] = timing.lines;
 
   // Master Audio Init
   useEffect(() => {
@@ -273,13 +265,15 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
     if (melody) melody.currentTime = cur;
     if (user) user.currentTime = cur;
 
-    Promise.all([
-      vocal.play().catch(() => {}),
-      inst.play().catch(() => {}),
-      melody ? melody.play().catch(() => {}) : Promise.resolve(),
-      user ? user.play().catch(() => {}) : Promise.resolve(),
-    ]).then(() => {
-      setIsPlaying(true);
+    Promise.allSettled([
+      vocal.play(),
+      inst.play(),
+      melody ? melody.play() : Promise.reject(new Error('no melody stem')),
+      user ? user.play() : Promise.reject(new Error('no user stem')),
+    ]).then((results) => {
+      // At least one stem must actually start; otherwise we would report a
+      // phantom "playing" state while nothing is audible.
+      if (results.some((r) => r.status === 'fulfilled')) setIsPlaying(true);
     });
   }, []);
 
@@ -351,12 +345,15 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
 
   const loopLine = useCallback(
     (lineId: string) => {
+      const idx = lines.findIndex((l) => l.id === lineId);
+      if (idx < 0) return;
       setActiveLineId(lineId);
       setLoopModeState('line');
-      seekToLine(lineId);
+      // Start at the beginning of the musical phrase so the loop is seamless.
+      seekToTime(getPhraseBounds(timing, idx).start);
       play();
     },
-    [seekToLine, play],
+    [lines, timing, seekToTime, play],
   );
 
   // Set Mode presets
@@ -435,12 +432,12 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
           inst.currentTime = cur;
         }
 
-        // Line-by-Line Tracking
-        const activeLine = lineAtTime(lines, cur);
+        // Line-by-line tracking against the generated timeline (real times).
+        const activeLine = findLineAtTime(timing, cur);
         setCurrentLineId(activeLine ? activeLine.id : null);
 
         // Syllable Tracking
-        const syl = syllableAtTime(activeLine, cur);
+        const syl = activeLine ? findSyllableAtTime(activeLine, cur) : null;
         if (syl) {
           setCurrentSyllableText(syl.text);
           setCurrentNoteName(syl.note.name);
@@ -449,11 +446,12 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
           setCurrentNoteName(null);
         }
 
-        // Line Loop Handler
+        // Phrase Loop Handler — loop the couplet containing the target line.
         if (loopMode === 'line' && activeLineId) {
-          const targetLine = lines.find((l) => l.id === activeLineId);
-          if (targetLine && cur >= targetLine.startTime + targetLine.duration) {
-            seekToTime(targetLine.startTime);
+          const idx = lines.findIndex((l) => l.id === activeLineId);
+          if (idx >= 0) {
+            const bounds = getPhraseBounds(timing, idx);
+            if (cur >= bounds.end) seekToTime(bounds.start);
           }
         }
       }
@@ -466,7 +464,7 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
       active = false;
       cancelAnimationFrame(rafRef.current);
     };
-  }, [isPlaying, lines, loopMode, activeLineId, seekToTime]);
+  }, [isPlaying, timing, lines, loopMode, activeLineId, seekToTime]);
 
   // Recording Actions
   const startRecording = useCallback(async () => {

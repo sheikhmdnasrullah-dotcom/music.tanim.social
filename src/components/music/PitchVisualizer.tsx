@@ -16,7 +16,7 @@ function midiToY(midi: number, h: number): number {
   return h - normalized * h * 0.75 - h * 0.12;
 }
 
-export function PitchVisualizer({ lineId, height = 120 }: PitchVisualizerProps) {
+export function PitchVisualizer({ lineId, height = 80 }: PitchVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { lines, currentLineId, activeLineId, isPlaying, currentTime } = useSongPlayer();
 
@@ -43,20 +43,8 @@ export function PitchVisualizer({ lineId, height = 120 }: PitchVisualizerProps) 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#090D16';
+    ctx.fillStyle = '#fafaf9';
     ctx.fillRect(0, 0, w, h);
-
-    // Subtle guide pitch grid lines (C3, D3, E3, G3, A3, C4, D4, E4)
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 1;
-    const gridNotes = [48, 50, 52, 55, 57, 60, 62, 64];
-    gridNotes.forEach((midi) => {
-      const y = midiToY(midi, h);
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(w, y);
-      ctx.stroke();
-    });
 
     const dur = Math.max(0.01, line.duration);
     const points = line.syllables.map((syl) => {
@@ -69,56 +57,46 @@ export function PitchVisualizer({ lineId, height = 120 }: PitchVisualizerProps) 
       };
     });
 
-    // Pitch Curve line
     if (points.length > 1) {
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#d4d4d4';
+      ctx.lineWidth = 1.5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
       points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
       ctx.stroke();
 
-      // Played progress highlight
-      const lineRelTime = currentTime >= line.startTime ? currentTime - line.startTime : currentTime;
+      const lineRelTime = Math.max(0, currentTime - line.absoluteStart);
       const playX = Math.max(0, Math.min(w, (lineRelTime / dur) * w));
       const played = points.filter((p) => p.x <= playX);
       if (played.length > 1) {
-        ctx.strokeStyle = '#f59e0b';
-        ctx.lineWidth = 4;
+        ctx.strokeStyle = '#0a0a0a';
+        ctx.lineWidth = 2;
         ctx.beginPath();
         played.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
         ctx.stroke();
       }
 
-      // Note dots + pitch names
       points.forEach((p) => {
-        ctx.fillStyle = '#f8fafc';
+        ctx.fillStyle = played.length > 0 && p.x <= playX ? '#0a0a0a' : '#a3a3a3';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
         ctx.fill();
-
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '10px monospace';
-        ctx.fillText(p.note, p.x - 6, p.y - 8);
       });
 
-      // Playhead vertical line
-      ctx.strokeStyle = '#f59e0b';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(playX, 0);
-      ctx.lineTo(playX, h);
-      ctx.stroke();
+      if (points.length > 0) {
+        ctx.strokeStyle = '#737373';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(playX, 0);
+        ctx.lineTo(playX, h);
+        ctx.stroke();
+      }
     }
   }, [line, height, currentTime]);
 
   return (
-    <div className="w-full rounded-xl overflow-hidden border border-slate-800 bg-[#090D16] shadow-inner mt-3">
-      <div className="text-[11px] font-mono text-slate-400 px-3 py-1 bg-slate-900/60 border-b border-slate-800/80 flex justify-between">
-        <span>Melody Pitch Contour</span>
-        <span>Key: D minor (Low D3 → Peak F4)</span>
-      </div>
+    <div className="w-full overflow-hidden rounded-md">
       <canvas ref={canvasRef} className="w-full block" />
     </div>
   );

@@ -22,22 +22,19 @@ export function SyllablePills({ lineId }: { lineId?: string }) {
   });
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center my-3" aria-label="Syllables" aria-live="polite">
+    <div className="flex flex-wrap gap-1.5 justify-center mt-4" aria-label="Syllables" aria-live="polite">
       {line.syllables.map((syl, i) => (
         <span
           key={i}
           className={cn(
-            'px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all duration-150 shadow-sm',
+            'px-2.5 py-1 text-xs font-medium transition-all duration-150',
             i === activeIdx
-              ? 'bg-amber-500 text-slate-950 scale-110 shadow-amber-500/50 shadow-md ring-2 ring-amber-400'
-              : 'bg-slate-800/80 text-slate-300 border border-slate-700/60 hover:border-slate-600',
+              ? 'bg-foreground text-white scale-105'
+              : 'bg-muted text-muted-foreground',
           )}
           aria-current={i === activeIdx ? 'true' : 'false'}
         >
           {syl.text}
-          <span className="block text-[10px] font-mono text-slate-400 font-normal">
-            {syl.note.name}
-          </span>
         </span>
       ))}
     </div>

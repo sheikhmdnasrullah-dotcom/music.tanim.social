@@ -11,120 +11,76 @@ export function LineList() {
     activeLineId,
     isPlaying,
     loopMode,
-    setLoopMode,
-    seekToLine,
     playLineOnly,
     loopLine,
     section,
-    setTempo,
-    setMode,
   } = useSongPlayer();
 
   const highlighted = isPlaying
     ? currentLineId
-    : (activeLineId ?? currentLineId ?? lines[0]?.id ?? null);
+    : activeLineId ?? currentLineId ?? lines[0]?.id ?? null;
   const loopingLineId = loopMode === 'line' ? (activeLineId ?? currentLineId) : null;
 
   return (
-    <div className="space-y-3" role="list" aria-label={`${section.name} lines`}>
-      <div className="flex items-center justify-between text-xs text-slate-400 font-bold uppercase tracking-wider px-1">
-        <span>Line-by-Line Vocal Practice Drills</span>
-        <span>{lines.length} Locked Phrases</span>
-      </div>
-
+    <div className="space-y-1" role="list" aria-label={`${section.name} lines`}>
       {lines.map((line, i) => (
         <div
           key={line.id}
           className={cn(
-            'p-4 rounded-xl transition-all border shadow-sm',
+            'group flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg transition-colors',
             line.id === highlighted
-              ? 'bg-slate-900 border-amber-500/80 shadow-md shadow-amber-500/10 ring-1 ring-amber-500/30'
-              : 'bg-slate-900/60 hover:bg-slate-900/90 border-slate-800',
+              ? 'bg-muted'
+              : 'hover:bg-muted/50',
           )}
           role="listitem"
         >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-amber-400">
-                  {i + 1}
-                </span>
-                <p
-                  className={cn(
-                    'font-bold text-base',
-                    line.id === highlighted ? 'text-white' : 'text-slate-200',
-                  )}
-                >
-                  {line.text}
-                </p>
-              </div>
-
-              {line.pronunciation && (
-                <p className="text-xs italic text-amber-300/80 mt-1 font-mono pl-7">
-                  🗣 {line.pronunciation}
-                </p>
-              )}
-
-              {line.visualContour && (
-                <p className="text-[11px] text-slate-400 mt-0.5 pl-7 font-mono">
-                  📈 {line.visualContour}
-                </p>
-              )}
-            </div>
-
-            {/* Drill Buttons per line */}
-            <div className="flex items-center gap-1.5 flex-wrap pl-7 md:pl-0">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => playLineOnly(line.id)}
-                className="text-xs h-8 border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200"
-                title="Play this line"
-              >
-                ▶ Hear
-              </Button>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => loopLine(line.id)}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2.5">
+              <span className="text-[11px] font-mono font-medium text-muted-foreground tabular-nums w-4">
+                {i + 1}
+              </span>
+              <p
                 className={cn(
-                  'text-xs h-8 border-slate-700 font-semibold',
-                  loopingLineId === line.id
-                    ? 'bg-amber-500 text-slate-950 border-amber-400'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-200',
+                  'text-sm truncate',
+                  line.id === highlighted ? 'text-foreground font-medium' : 'text-muted-foreground',
                 )}
-                title="Loop this phrase continuously"
               >
-                🔁 Loop
-              </Button>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setTempo(0.7);
-                  playLineOnly(line.id);
-                }}
-                className="text-xs h-8 border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-300"
-                title="Practice slowly at 70% speed (pitch preserved)"
-              >
-                🐢 Slow
-              </Button>
-
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setMode('practice');
-                  playLineOnly(line.id);
-                }}
-                className="text-xs h-8 border-sky-800 bg-sky-950/40 hover:bg-sky-900/60 text-sky-300"
-                title="Sing along with guide"
-              >
-                🎤 Sing
-              </Button>
+                {line.text}
+              </p>
             </div>
+          </div>
+
+          <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => playLineOnly(line.id)}
+              className="h-7 w-7 p-0"
+              aria-label={`Play line ${i + 1}`}
+            >
+              <span className="sr-only">Play</span>
+              <svg className="h-3.5 w-3.5 ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => loopLine(line.id)}
+              className={cn(
+                'h-7 w-7 p-0',
+                loopingLineId === line.id && 'text-foreground',
+              )}
+              aria-label={`Loop line ${i + 1}`}
+            >
+              <span className="sr-only">Loop</span>
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 2l4 4-4 4" />
+                <path d="M3 11v-1a4 4 0 014-4h14" />
+                <path d="M7 22l-4-4 4-4" />
+                <path d="M21 13v1a4 4 0 01-4 4H3" />
+              </svg>
+            </Button>
           </div>
         </div>
       ))}
