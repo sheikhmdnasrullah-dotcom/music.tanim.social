@@ -1,44 +1,52 @@
 {
   "source": "yue2",
-  "candidate": "yue-02",
-  "seed": 108,
-  "source_file": "generations/short_test/yue-02/full_mix.flac",
+  "candidate": "yue-03",
+  "seed": 777,
+  "source_file": "generations/short_test/yue-03/full_mix.flac",
   "sample_rate": 48000,
-  "verse_start_offset": 11.0,
+  "verse_start_offset": 30.0,
   "sections": [
     {
       "id": "verse-1",
-      "start": 11.0,
-      "end": 39.788,
+      "start": 30.0,
+      "end": 58.788,
       "duration": 28.787999999999997,
       "samples": 1381823
     },
     {
       "id": "pre-chorus-1",
-      "start": 39.788,
-      "end": 53.68299999999999,
+      "start": 58.788,
+      "end": 72.68299999999999,
       "duration": 13.894999999999996,
       "samples": 666959
     },
     {
       "id": "chorus-1",
-      "start": 53.683,
-      "end": 82.011,
-      "duration": 28.327999999999996,
-      "samples": 1359743
+      "start": 72.68299999999999,
+      "end": 101.011,
+      "duration": 28.328000000000003,
+      "samples": 1359744
     }
   ],
   "quality_comparison": {
     "yue-01": {
       "vocal_detection": 0.782,
       "peak": 1.0,
-      "duration": 138.56
+      "duration": 138.56,
+      "score": 60
     },
     "yue-02": {
       "vocal_detection": 0.813,
       "peak": 0.958,
-      "duration": 112.4
+      "duration": 112.4,
+      "score": 85
+    },
+    "yue-03": {
+      "vocal_detection": 0.923,
+      "peak": 0.92,
+      "duration": 119.08,
+      "score": 90
     }
   },
-  "note": "yue-02 selected over yue-01: better vocal detection, no clipping, shorter duration"
+  "selection_reason": "yue-03 selected: highest vocal detection (92.3%), highest score (90), most ABC notes (200), no clipping"
 }
