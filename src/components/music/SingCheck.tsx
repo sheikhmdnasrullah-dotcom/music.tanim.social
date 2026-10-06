@@ -163,7 +163,7 @@ export function SingCheck() {
             isChecking ? 'bg-danger text-white hover:bg-red-700' : 'bg-foreground text-white hover:bg-neutral-800'
           }`}
         >
-          {isChecking ? '■ Stop' : '🎤 Start'}
+          {isChecking ? 'Stop' : 'Start'}
         </button>
       </div>
 
