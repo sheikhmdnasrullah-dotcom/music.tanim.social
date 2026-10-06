@@ -1,42 +1,8 @@
 'use client';
 
-// All practice aids in one honest panel: guide voice, guide speed, tempo,
-// loop, mute. Every control here drives the shared player directly.
-
 import { useSongPlayer } from '@/state/SongPlayerContext';
-import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-function SegButton({
-  active,
-  onClick,
-  children,
-  ariaLabel,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  ariaLabel: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      aria-pressed={active}
-      aria-label={ariaLabel}
-      role="radio"
-      aria-checked={active}
-      className={cn(
-        'flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-        active ? 'bg-foreground text-white' : 'bg-muted text-foreground hover:bg-neutral-200',
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
-const TEMPO_PRESETS = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.25, 1.5];
 
 export function PracticePanel() {
   const {
@@ -44,146 +10,141 @@ export function PracticePanel() {
     setVoiceSource,
     guideSpeed,
     setGuideSpeed,
-    slowFileInUse,
     tempo,
     setTempo,
     loopMode,
     setLoopMode,
-    guideMuted,
-    toggleGuideMute,
+    stems,
+    setStemVolume,
+    mode,
+    setMode,
   } = useSongPlayer();
 
+  const presets = [0.6, 0.7, 0.8, 0.9, 1.0];
+
   return (
-    <div className="space-y-5">
-      <div>
-        <div className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">
-          Guide voice
-        </div>
-        <div className="flex gap-1.5" role="radiogroup" aria-label="Guide voice">
-          <SegButton
-            active={voiceSource === 'male'}
-            onClick={() => setVoiceSource('male')}
-            ariaLabel="Male guide vocal"
+    <div className="space-y-4 bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+      <div className="text-xs font-bold uppercase tracking-wider text-amber-400">
+        Practice Hub
+      </div>
+
+      {/* Mode Selection */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-semibold text-slate-400">Voice Setup</label>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              setVoiceSource('male');
+              setMode('guide');
+            }}
+            className={cn(
+              'py-2 px-3 rounded-lg text-xs font-bold border transition',
+              voiceSource === 'male'
+                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700',
+            )}
           >
-            Male guide
-          </SegButton>
-          <SegButton
-            active={voiceSource === 'user'}
-            onClick={() => setVoiceSource('user')}
-            ariaLabel="Your voice profile"
+            👨 Male Guide Voice
+          </button>
+          <button
+            onClick={() => {
+              setVoiceSource('user');
+              setMode('user');
+            }}
+            className={cn(
+              'py-2 px-3 rounded-lg text-xs font-bold border transition',
+              voiceSource === 'user'
+                ? 'bg-purple-500 text-white border-purple-400 shadow'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700',
+            )}
           >
-            My voice
-          </SegButton>
+            🎤 My Voice Profile
+          </button>
         </div>
       </div>
 
-      <div>
-        <div className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">
-          Guide speed
+      {/* Stem Faders Quick Mix */}
+      <div className="space-y-2 pt-2 border-t border-slate-800">
+        <label className="text-xs font-semibold text-slate-400">Track Levels</label>
+        <div className="space-y-2">
+          <div>
+            <div className="flex justify-between text-[11px] text-slate-400 mb-1">
+              <span>Guide Vocal</span>
+              <span className="font-mono text-amber-400">{Math.round(stems.guideVocal * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={stems.guideVocal}
+              onChange={(e) => setStemVolume('guideVocal', parseFloat(e.target.value))}
+              className="w-full accent-amber-500 cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <div className="flex justify-between text-[11px] text-slate-400 mb-1">
+              <span>Acoustic Instrumental</span>
+              <span className="font-mono text-sky-400">{Math.round(stems.instrumental * 100)}%</span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={stems.instrumental}
+              onChange={(e) => setStemVolume('instrumental', parseFloat(e.target.value))}
+              className="w-full accent-sky-500 cursor-pointer"
+            />
+          </div>
         </div>
-        <div className="flex gap-1.5" role="radiogroup" aria-label="Guide speed">
-          <SegButton
-            active={guideSpeed === 'normal'}
-            onClick={() => setGuideSpeed('normal')}
-            ariaLabel="Full speed, 80 BPM"
-          >
-            Full (80 BPM)
-          </SegButton>
-          <SegButton
-            active={guideSpeed === 'slow'}
-            onClick={() => setGuideSpeed('slow')}
-            ariaLabel="Slow practice, 60 BPM"
-          >
-            Slow (60 BPM)
-          </SegButton>
-        </div>
-        {guideSpeed === 'slow' && (
-          <p className="mt-1.5 text-xs text-muted-foreground leading-relaxed">
-            {slowFileInUse
-              ? 'Playing the real 60 BPM practice recording for this section.'
-              : 'No 60 BPM file for this section yet — playing the guide at 75% speed with pitch preserved.'}
-          </p>
-        )}
       </div>
 
-      <div>
-        <div className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">
-          Tempo
-        </div>
-        <div className="flex flex-wrap gap-1.5 mb-2">
-          {TEMPO_PRESETS.map((p) => (
+      {/* Speed Presets */}
+      <div className="space-y-1.5 pt-2 border-t border-slate-800">
+        <label className="text-xs font-semibold text-slate-400">Speed (Pitch Preserved)</label>
+        <div className="grid grid-cols-5 gap-1">
+          {presets.map((p) => (
             <button
               key={p}
-              onClick={() => setTempo(p)}
-              aria-pressed={Math.abs(tempo - p) < 0.01}
+              onClick={() => {
+                setTempo(p);
+                setGuideSpeed('normal');
+              }}
               className={cn(
-                'px-2.5 py-1 rounded text-xs font-semibold transition-colors',
-                Math.abs(tempo - p) < 0.01
-                  ? 'bg-foreground text-white'
-                  : 'bg-muted text-foreground hover:bg-neutral-200',
+                'py-1.5 rounded text-xs font-bold border transition',
+                tempo === p
+                  ? 'bg-amber-500 text-slate-950 border-amber-400'
+                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700',
               )}
             >
               {Math.round(p * 100)}%
             </button>
           ))}
         </div>
-        <Slider
-          label="Tempo"
-          value={Math.round(tempo * 100)}
-          min={50}
-          max={150}
-          step={5}
-          unit="%"
-          onChange={(v) => setTempo(v / 100)}
-        />
       </div>
 
-      <div>
-        <div className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">
-          Loop
+      {/* Loop Control */}
+      <div className="space-y-1.5 pt-2 border-t border-slate-800">
+        <label className="text-xs font-semibold text-slate-400">Looping</label>
+        <div className="grid grid-cols-3 gap-1.5">
+          {(['off', 'line', 'section'] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setLoopMode(m)}
+              className={cn(
+                'py-1.5 px-2 rounded-lg text-xs font-bold border transition',
+                loopMode === m
+                  ? 'bg-sky-500 text-slate-950 border-sky-400'
+                  : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700',
+              )}
+            >
+              {m === 'off' ? 'Off' : m === 'line' ? 'Line 🔁' : 'Section 🔁'}
+            </button>
+          ))}
         </div>
-        <div className="flex gap-1.5" role="radiogroup" aria-label="Loop mode">
-          <SegButton
-            active={loopMode === 'off'}
-            onClick={() => setLoopMode('off')}
-            ariaLabel="Loop off"
-          >
-            Off
-          </SegButton>
-          <SegButton
-            active={loopMode === 'line'}
-            onClick={() => setLoopMode('line')}
-            ariaLabel="Loop the selected line"
-          >
-            Line
-          </SegButton>
-          <SegButton
-            active={loopMode === 'section'}
-            onClick={() => setLoopMode('section')}
-            ariaLabel="Loop the whole section"
-          >
-            Section
-          </SegButton>
-        </div>
-        <p className="mt-1.5 text-xs text-muted-foreground">
-          Line loop repeats the line you last clicked. Section loop repeats the whole part.
-        </p>
-      </div>
-
-      <div>
-        <div className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-2">
-          Singing space
-        </div>
-        <Button
-          variant={guideMuted ? 'primary' : 'secondary'}
-          onClick={toggleGuideMute}
-          aria-pressed={guideMuted}
-          className="w-full"
-        >
-          {guideMuted ? 'Guide muted — your space to sing' : 'Silence the guide to sing'}
-        </Button>
       </div>
     </div>
   );
 }
-

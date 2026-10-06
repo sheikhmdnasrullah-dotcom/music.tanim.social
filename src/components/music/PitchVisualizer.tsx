@@ -1,9 +1,5 @@
 'use client';
 
-// Draws the melody contour of one line from the syllable note data,
-// with a moving playhead. It visualizes the song's written melody —
-// nothing it hears from you.
-
 import { useEffect, useRef } from 'react';
 import { useSongPlayer } from '@/state/SongPlayerContext';
 
@@ -13,14 +9,14 @@ interface PitchVisualizerProps {
 }
 
 const MIDI_MIN = 46;
-const MIDI_MAX = 70;
+const MIDI_MAX = 68;
 
 function midiToY(midi: number, h: number): number {
   const normalized = (midi - MIDI_MIN) / (MIDI_MAX - MIDI_MIN);
-  return h - normalized * h * 0.85 - h * 0.075;
+  return h - normalized * h * 0.75 - h * 0.12;
 }
 
-export function PitchVisualizer({ lineId, height = 140 }: PitchVisualizerProps) {
+export function PitchVisualizer({ lineId, height = 120 }: PitchVisualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { lines, currentLineId, activeLineId, isPlaying, currentTime } = useSongPlayer();
 
@@ -47,30 +43,35 @@ export function PitchVisualizer({ lineId, height = 140 }: PitchVisualizerProps) 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#fafafa';
+    ctx.fillStyle = '#090D16';
     ctx.fillRect(0, 0, w, h);
 
-    // Soft grid at C3, D3, E3, F3, G3, A3, B3, C4
-    ctx.strokeStyle = '#ececec';
+    // Subtle guide pitch grid lines (C3, D3, E3, G3, A3, C4, D4, E4)
+    ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 1;
-    for (let midi = 48; midi <= 64; midi += 2) {
+    const gridNotes = [48, 50, 52, 55, 57, 60, 62, 64];
+    gridNotes.forEach((midi) => {
       const y = midiToY(midi, h);
       ctx.beginPath();
       ctx.moveTo(0, y);
       ctx.lineTo(w, y);
       ctx.stroke();
-    }
+    });
 
-    const dur = Math.max(0.001, line.duration);
-    const points = line.syllables.map((syl) => ({
-      x: ((syl.startTime - line.startTime) / dur) * w,
-      y: midiToY(syl.note.midi, h),
-      text: syl.text,
-    }));
+    const dur = Math.max(0.01, line.duration);
+    const points = line.syllables.map((syl) => {
+      const sStart = syl.startTime >= line.startTime ? syl.startTime - line.startTime : syl.startTime;
+      return {
+        x: Math.max(10, Math.min(w - 10, (sStart / dur) * w)),
+        y: midiToY(syl.note.midi, h),
+        text: syl.text,
+        note: syl.note.name,
+      };
+    });
 
-    // Contour
+    // Pitch Curve line
     if (points.length > 1) {
-      ctx.strokeStyle = '#171717';
+      ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 2.5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
@@ -78,53 +79,47 @@ export function PitchVisualizer({ lineId, height = 140 }: PitchVisualizerProps) 
       points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
       ctx.stroke();
 
-      // Played portion in accent
-      const playX = ((currentTime - line.startTime) / dur) * w;
+      // Played progress highlight
+      const lineRelTime = currentTime >= line.startTime ? currentTime - line.startTime : currentTime;
+      const playX = Math.max(0, Math.min(w, (lineRelTime / dur) * w));
       const played = points.filter((p) => p.x <= playX);
       if (played.length > 1) {
-        ctx.strokeStyle = '#d97706';
-        ctx.lineWidth = 3.5;
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 4;
         ctx.beginPath();
         played.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
         ctx.stroke();
       }
 
-      // Dots
+      // Note dots + pitch names
       points.forEach((p) => {
-        ctx.fillStyle = '#171717';
+        ctx.fillStyle = '#f8fafc';
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px monospace';
+        ctx.fillText(p.note, p.x - 6, p.y - 8);
       });
 
-      // Playhead
-      if (isPlaying && playX >= 0 && playX <= w) {
-        ctx.strokeStyle = 'rgba(217, 119, 6, 0.6)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(playX, 4);
-        ctx.lineTo(playX, h - 4);
-        ctx.stroke();
-      }
+      // Playhead vertical line
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(playX, 0);
+      ctx.lineTo(playX, h);
+      ctx.stroke();
     }
-
-    // Syllable labels
-    if (points.length > 0 && w > 260) {
-      ctx.font = '10px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillStyle = '#737373';
-      points.forEach((p) => ctx.fillText(p.text, p.x, p.y - 7));
-    }
-  }, [line, currentTime, isPlaying, height]);
+  }, [line, height, currentTime]);
 
   return (
-    <div className="w-full rounded-lg border border-border bg-background overflow-hidden">
-      <canvas
-        ref={canvasRef}
-        className="w-full block"
-        aria-label="Melody contour of the current line"
-      />
+    <div className="w-full rounded-xl overflow-hidden border border-slate-800 bg-[#090D16] shadow-inner mt-3">
+      <div className="text-[11px] font-mono text-slate-400 px-3 py-1 bg-slate-900/60 border-b border-slate-800/80 flex justify-between">
+        <span>Melody Pitch Contour</span>
+        <span>Key: D minor (Low D3 → Peak F4)</span>
+      </div>
+      <canvas ref={canvasRef} className="w-full block" />
     </div>
   );
 }

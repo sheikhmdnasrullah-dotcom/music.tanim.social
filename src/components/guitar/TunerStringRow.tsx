@@ -4,50 +4,71 @@ import { cn } from '@/lib/utils';
 import type { StringStatus } from '@/components/guitar/Tuner';
 
 interface TunerStringRowProps {
-  string: number;
-  note: string;
-  targetFreq: number;
-  detectedFreq: number | null;
-  cents: number | null;
-  inTune: boolean;
+  status: StringStatus;
+  toleranceCents: number;
 }
 
-export function TunerStringRow({ string, note, targetFreq, detectedFreq, cents, inTune }: TunerStringRowProps) {
+/**
+ * One row per string. The active row is the string the detected pitch is closest to —
+ * the one the player is actually tuning right now.
+ */
+export function TunerStringRow({ status, toleranceCents }: TunerStringRowProps) {
+  const cents = status.cents;
+  const isSharp = cents !== null && cents > 0;
+  const isFlat = cents !== null && cents < 0;
+  const hasSignal = cents !== null;
+  const tuned = hasSignal && Math.abs(cents) <= toleranceCents;
+
+  // Map ±50 cents across the full bar; the centre is the target pitch.
+  const width = hasSignal ? Math.min(100, Math.max(0, 50 + (cents / 50) * 50)) : 50;
+
   return (
-    <div className={cn('border border-border rounded-xl p-4', inTune && 'border-success bg-green-50')}>
+    <div
+      className={cn(
+        'p-3 rounded-lg border transition-colors',
+        status.active
+          ? tuned
+            ? 'border-success bg-success/10'
+            : 'border-accent bg-accent-light/40'
+          : 'border-border bg-background',
+      )}
+    >
       <div className="flex items-center justify-between mb-2">
-        <div className="text-lg font-bold font-mono">{note}</div>
-        <div className="text-sm text-muted-foreground">String {string}</div>
+        <span className="text-lg font-mono font-bold">{status.note}</span>
+        <span className="text-sm text-muted-foreground">{status.targetFreq.toFixed(1)} Hz</span>
       </div>
-      <div className="flex items-center gap-3">
-        <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
-          <div
-            className={cn('h-full transition-all duration-100', inTune ? 'bg-success' : 'bg-accent')}
-            style={{
-              width: cents !== null ? `${Math.min(100, Math.max(0, 50 + (cents / 20) * 50))}%` : '0%',
-            }}
-          />
-        </div>
-        <div className="text-right w-24">
-          <div className="text-sm font-mono text-muted-foreground">
-            {detectedFreq ? `${detectedFreq.toFixed(1)} Hz` : '—'}
-          </div>
-          <div className={cn('text-xs font-mono', inTune ? 'text-success' : 'text-danger')}>
-            {cents !== null
-              ? `${cents > 0 ? '+' : ''}${cents}¢`
-              : '—'}
-          </div>
-        </div>
-      </div>
-      <div className="mt-2 text-center">
-        <div className={cn('w-24 h-2 rounded-full mx-auto transition-colors', inTune ? 'bg-success' : 'bg-muted')}>
-          {inTune && (
-            <div className="w-full h-full bg-success rounded-full animate-pulse" />
+
+      <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div
+          className={cn(
+            'h-full transition-all duration-150',
+            tuned ? 'bg-success' : isSharp ? 'bg-danger' : 'bg-accent',
           )}
-        </div>
-        <p className="text-xs text-muted-foreground mt-1">
-          Target: {targetFreq.toFixed(2)} Hz
-        </p>
+          style={{ width: `${width}%` }}
+        />
+      </div>
+
+      <div className="flex justify-between items-center text-xs mt-1">
+        <span className="font-mono">
+          {!hasSignal
+            ? '—'
+            : tuned
+              ? 'in tune'
+              : isSharp
+                ? `♯ ${Math.abs(cents)}¢`
+                : `♭ ${Math.abs(cents)}¢`}
+        </span>
+        <span className={cn(tuned ? 'text-success font-medium' : 'text-muted-foreground')}>
+          {!hasSignal
+            ? `string ${status.string}`
+            : status.active
+              ? tuned
+                ? 'Perfect'
+                : isSharp
+                  ? 'Tune down'
+                  : 'Tune up'
+              : `string ${status.string}`}
+        </span>
       </div>
     </div>
   );

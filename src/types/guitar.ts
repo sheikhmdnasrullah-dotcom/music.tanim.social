@@ -164,3 +164,58 @@ export type GuitarEngineEvent =
   | { type: 'position-change'; position: number }
   | { type: 'tempo-change'; tempo: number }
   | { type: 'section-change'; sectionId: string };
+
+export interface ChordDiagramOptions {
+  showFingers?: boolean;
+  showIntervals?: boolean;
+  showNoteNames?: boolean;
+  showBarre?: boolean;
+  size?: 'small' | 'medium' | 'large';
+  orientation?: 'vertical' | 'horizontal';
+}
+
+export interface FretboardOptions {
+  showNotes?: boolean;
+  showIntervals?: boolean;
+  highlightRoot?: boolean;
+  highlightChordTones?: boolean;
+  fretRange?: { from: number; to: number };
+  showCaged?: boolean;
+  cagedShape?: string;
+}
+
+export interface GuitarEngine {
+  initialize(): Promise<void>;
+  destroy(): void;
+
+  getTunings(): Tuning[];
+  getTuning(name: string): Tuning | undefined;
+
+  getChordShapes(root: string, quality: string, tuning?: Tuning): ChordShape[];
+  getChordShape(id: string): ChordShape | undefined;
+  getChordPositions(chord: ChordShape, capo?: number): ChordPosition[];
+
+  getNotePositions(note: number, tuning?: Tuning): NotePosition[];
+  getScalePositions(root: string, scale: string, tuning?: Tuning): ScalePosition[];
+
+  parseGuitarPro(data: ArrayBuffer): Promise<GuitarSong>;
+  parseMusicXML(xml: string): Promise<GuitarSong>;
+  parseAlphaTex(tex: string): Promise<GuitarSong>;
+
+  renderTab(song: GuitarSong, container: HTMLElement): void;
+  renderChordDiagram(chord: ChordShape, container: HTMLElement, options?: ChordDiagramOptions): void;
+  renderFretboard(scale: ScalePosition, container: HTMLElement, options?: FretboardOptions): void;
+
+  playSong(song: GuitarSong, state: PracticeState): Promise<void>;
+  stopPlayback(): void;
+  setTempo(tempo: number): void;
+  seek(time: number): void;
+  setLoop(start: number, end: number): void;
+
+  on(event: 'note-on' | 'note-off' | 'chord-change' | 'position-change' | 'tempo-change' | 'section-change', handler: (event: GuitarEngineEvent) => void): void;
+  off(event: string, handler: Function): void;
+}
+
+export interface GuitarEngineFactory {
+  createEngine(): GuitarEngine;
+}

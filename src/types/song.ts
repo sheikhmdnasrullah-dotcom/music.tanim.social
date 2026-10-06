@@ -32,6 +32,9 @@ export interface SongSection {
   lines: LyricLine[];
   audioFile: string;
   userAudioFile: string;
+  instrumentalAudioFile?: string;
+  melodyAudioFile?: string;
+  fullMixAudioFile?: string;
   startTime: number;
   duration: number;
 }
@@ -45,18 +48,28 @@ export interface Song {
   timeSignature: string;
   sections: SongSection[];
   totalDuration: number;
+  fullSongAudioFile?: string;
+  fullSongInstrumentalFile?: string;
+  fullSongMelodyFile?: string;
 }
 
 export type PracticeMode = 'guide' | 'user' | 'practice' | 'hum' | 'mic';
+
+export interface StemVolumes {
+  guideVocal: number;    // 0.0 to 1.0
+  instrumental: number;  // 0.0 to 1.0
+  melodyRef: number;     // 0.0 to 1.0
+  userVoice: number;     // 0.0 to 1.0
+  metronome: number;     // 0.0 to 1.0
+  mic: number;           // 0.0 to 1.0
+}
 
 export interface PracticeState {
   mode: PracticeMode;
   isPlaying: boolean;
   currentTime: number;
   tempo: number;
-  loopMode: 'off' | 'line' | 'phrase';
+  loopMode: 'off' | 'line' | 'section';
   loopCount: number;
-  guideMuted: boolean;
+  stems: StemVolumes;
 }
-
-export type PracticeStatus = 'listen' | 'try' | 'repeat' | 'master';

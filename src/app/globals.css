@@ -20,6 +20,14 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-light: var(--accent-light);
+  /* Theme variables only become Tailwind utilities once they are registered here.
+     These were referenced by pages (bg-primary, text-success, bg-danger …) but never
+     declared, so the classes silently produced no styles. */
+  --color-primary: var(--foreground);
+  --color-primary-foreground: #ffffff;
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

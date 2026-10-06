@@ -27,8 +27,11 @@ const RAW_SONG: Song = {
       id: 'verse-1',
       name: 'Verse 1',
       type: 'verse',
-      audioFile: '/audio/male_guide/Male_Guide_verse_1.wav',
-      userAudioFile: '/audio/user_voice/User_Voice_Guide_verse_1.wav',
+      audioFile: '/audio/canonical/verse-1_guide_vocal.wav',
+      userAudioFile: '/audio/canonical/verse-1_user_voice.wav',
+      instrumentalAudioFile: '/audio/canonical/verse-1_instrumental.wav',
+      melodyAudioFile: '/audio/canonical/verse-1_melody_ref.wav',
+      fullMixAudioFile: '/audio/canonical/verse-1_full_mix.wav',
       startTime: 0,
       duration: 0,
       lines: [
@@ -162,8 +165,11 @@ const RAW_SONG: Song = {
       id: 'pre-chorus-1',
       name: 'Pre-Chorus 1',
       type: 'pre-chorus',
-      audioFile: '/audio/male_guide/Male_Guide_pre_chorus_1.wav',
-      userAudioFile: '/audio/user_voice/User_Voice_Guide_pre_chorus_1.wav',
+      audioFile: '/audio/canonical/pre-chorus-1_guide_vocal.wav',
+      userAudioFile: '/audio/canonical/pre-chorus-1_user_voice.wav',
+      instrumentalAudioFile: '/audio/canonical/pre-chorus-1_instrumental.wav',
+      melodyAudioFile: '/audio/canonical/pre-chorus-1_melody_ref.wav',
+      fullMixAudioFile: '/audio/canonical/pre-chorus-1_full_mix.wav',
       startTime: 0,
       duration: 0,
       lines: [
@@ -247,8 +253,11 @@ const RAW_SONG: Song = {
       id: 'chorus-1',
       name: 'Chorus 1',
       type: 'chorus',
-      audioFile: '/audio/male_guide/Male_Guide_chorus_1.wav',
-      userAudioFile: '/audio/user_voice/User_Voice_Guide_chorus_1.wav',
+      audioFile: '/audio/canonical/chorus-1_guide_vocal.wav',
+      userAudioFile: '/audio/canonical/chorus-1_user_voice.wav',
+      instrumentalAudioFile: '/audio/canonical/chorus-1_instrumental.wav',
+      melodyAudioFile: '/audio/canonical/chorus-1_melody_ref.wav',
+      fullMixAudioFile: '/audio/canonical/chorus-1_full_mix.wav',
       startTime: 0,
       duration: 0,
       lines: [
@@ -403,8 +412,11 @@ const RAW_SONG: Song = {
       id: 'verse-2',
       name: 'Verse 2',
       type: 'verse',
-      audioFile: '/audio/male_guide/Male_Guide_verse_2.wav',
-      userAudioFile: '/audio/user_voice/User_Voice_Guide_verse_2.wav',
+      audioFile: '/audio/canonical/verse-2_guide_vocal.wav',
+      userAudioFile: '/audio/canonical/verse-2_user_voice.wav',
+      instrumentalAudioFile: '/audio/canonical/verse-2_instrumental.wav',
+      melodyAudioFile: '/audio/canonical/verse-2_melody_ref.wav',
+      fullMixAudioFile: '/audio/canonical/verse-2_full_mix.wav',
       startTime: 0,
       duration: 0,
       lines: [
@@ -530,8 +542,11 @@ const RAW_SONG: Song = {
       id: 'pre-chorus-2',
       name: 'Pre-Chorus 2',
       type: 'pre-chorus',
-      audioFile: '/audio/male_guide/Male_Guide_pre_chorus_2.wav',
-      userAudioFile: '/audio/user_voice/User_Voice_Guide_pre_chorus_2.wav',
+      audioFile: '/audio/canonical/pre-chorus-2_guide_vocal.wav',
+      userAudioFile: '/audio/canonical/pre-chorus-2_user_voice.wav',
+      instrumentalAudioFile: '/audio/canonical/pre-chorus-2_instrumental.wav',
+      melodyAudioFile: '/audio/canonical/pre-chorus-2_melody_ref.wav',
+      fullMixAudioFile: '/audio/canonical/pre-chorus-2_full_mix.wav',
       startTime: 0,
       duration: 0,
       lines: [
@@ -603,8 +618,11 @@ const RAW_SONG: Song = {
       id: 'bridge',
       name: 'Bridge',
       type: 'bridge',
-      audioFile: '/audio/male_guide/Male_Guide_bridge.wav',
-      userAudioFile: '/audio/user_voice/User_Voice_Guide_bridge.wav',
+      audioFile: '/audio/canonical/bridge_guide_vocal.wav',
+      userAudioFile: '/audio/canonical/bridge_user_voice.wav',
+      instrumentalAudioFile: '/audio/canonical/bridge_instrumental.wav',
+      melodyAudioFile: '/audio/canonical/bridge_melody_ref.wav',
+      fullMixAudioFile: '/audio/canonical/bridge_full_mix.wav',
       startTime: 0,
       duration: 0,
       lines: [
@@ -731,8 +749,11 @@ const RAW_SONG: Song = {
       id: 'final-chorus',
       name: 'Final Chorus',
       type: 'chorus',
-      audioFile: '/audio/male_guide/Male_Guide_final_chorus.wav',
-      userAudioFile: '/audio/user_voice/User_Voice_Guide_final_chorus.wav',
+      audioFile: '/audio/canonical/final-chorus_guide_vocal.wav',
+      userAudioFile: '/audio/canonical/final-chorus_user_voice.wav',
+      instrumentalAudioFile: '/audio/canonical/final-chorus_instrumental.wav',
+      melodyAudioFile: '/audio/canonical/final-chorus_melody_ref.wav',
+      fullMixAudioFile: '/audio/canonical/final-chorus_full_mix.wav',
       startTime: 0,
       duration: 0,
       lines: [
@@ -875,8 +896,11 @@ const RAW_SONG: Song = {
       id: 'outro',
       name: 'Outro',
       type: 'outro',
-      audioFile: '/audio/male_guide/Male_Guide_outro.wav',
-      userAudioFile: '/audio/user_voice/User_Voice_Guide_outro.wav',
+      audioFile: '/audio/canonical/outro_guide_vocal.wav',
+      userAudioFile: '/audio/canonical/outro_user_voice.wav',
+      instrumentalAudioFile: '/audio/canonical/outro_instrumental.wav',
+      melodyAudioFile: '/audio/canonical/outro_melody_ref.wav',
+      fullMixAudioFile: '/audio/canonical/outro_full_mix.wav',
       startTime: 0,
       duration: 0,
       lines: [
@@ -918,15 +942,6 @@ const RAW_SONG: Song = {
   ],
 };
 
-export function getSectionAudio(section: SongSection, voiceSource: 'male' | 'user'): string {
-  return voiceSource === 'male' ? section.audioFile : section.userAudioFile;
-}
-
-/**
- * Applies the audio-derived timings from `@/data/timings` to the authored song
- * data: section offsets, line spans and syllable start/end all become absolute
- * seconds within that section's guide audio file.
- */
 function withTimings(raw: Song): Song {
   const byId = new Map(raw.sections.map((s) => [s.id, s] as const));
   const ordered: SongSection[] = [];
@@ -945,20 +960,9 @@ function withTimings(raw: Song): Song {
     const timing = SECTION_TIMINGS[section.id];
     if (!timing) return section;
 
-    if (process.env.NODE_ENV !== 'production' && timing.lines.length !== section.lines.length) {
-      console.warn(
-        `[song] ${section.id}: ${section.lines.length} authored lines vs ${timing.lines.length} timed lines`,
-      );
-    }
-
     const lines = section.lines.map((line, i) => {
       const lt = timing.lines[i];
       if (!lt) return line;
-      if (process.env.NODE_ENV !== 'production' && lt.syllables.length !== line.syllables.length) {
-        console.warn(
-          `[song] ${section.id}/${line.id}: ${line.syllables.length} authored syllables vs ${lt.syllables.length} timed syllables`,
-        );
-      }
       return {
         ...line,
         startTime: lt.start,
@@ -980,3 +984,16 @@ function withTimings(raw: Song): Song {
 }
 
 export const SONG: Song = withTimings(RAW_SONG);
+
+export function getSectionAudio(
+  section: SongSection,
+  voice: 'male' | 'user' | 'instrumental' | 'melody' | 'mix' = 'male',
+): string {
+  if (voice === 'user') return section.userAudioFile || `/audio/canonical/${section.id}_user_voice.wav`;
+  if (voice === 'instrumental') return section.instrumentalAudioFile || `/audio/canonical/${section.id}_instrumental.wav`;
+  if (voice === 'melody') return section.melodyAudioFile || `/audio/canonical/${section.id}_melody_ref.wav`;
+  if (voice === 'mix') return section.fullMixAudioFile || `/audio/canonical/${section.id}_full_mix.wav`;
+  return section.audioFile || `/audio/canonical/${section.id}_guide_vocal.wav`;
+}
+
+

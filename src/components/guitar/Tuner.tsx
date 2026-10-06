@@ -1,116 +1,146 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useMemo } from 'react';
+import { usePitchTracker, type PitchSample } from '@/hooks/use-pitch-tracker';
+import { STANDARD_TUNING, TUNINGS, type Tuning } from '@/types/guitar';
+import { centsBetween, midiToNoteName, noteToFrequency } from '@/lib/music/notes';
 
 export interface TunerConfig {
-  tuning: keyof typeof import('@/types/guitar').TUNINGS;
+  /** Key into `TUNINGS`, e.g. `standard`, `drop-d`. */
+  tuning: string;
   toleranceCents: number;
 }
 
 export interface StringStatus {
+  /** 6 = low string, 1 = high string. */
   string: number;
+  /** Open-string name for the selected tuning, e.g. `E2`. */
   note: string;
   targetFreq: number;
   detectedFreq: number | null;
+  /** Signed error of the detected pitch against *this* string, in cents. */
   cents: number | null;
   inTune: boolean;
+  /** The string the detected pitch is closest to — the one currently being tuned. */
+  active: boolean;
 }
 
-export function useTuner(config: TunerConfig) {
-  const [isListening, setIsListening] = useState(false);
-  const [pitch, setPitch] = useState<number | null>(null);
-  const [stringStatuses, setStringStatuses] = useState<StringStatus[]>([]);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const animationRef = useRef<number | null>(null);
+export type TunerInstruction =
+  | 'Perfect'
+  | 'Tune up'
+  | 'Tune down'
+  | 'Play a string'
+  | 'Listening…';
 
-  const toggleListening = useCallback(async () => {
-    if (isListening) {
-      setIsListening(false);
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
-    } else {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const ac = new AudioContext();
-        audioContextRef.current = ac;
-        const source = ac.createMediaStreamSource(stream);
-        const analyser = ac.createAnalyser();
-        analyser.fftSize = 2048;
-        source.connect(analyser);
-        analyserRef.current = analyser;
-        setIsListening(true);
-        detectPitch();
-      } catch (e) {
-        console.error('Microphone access denied:', e);
-      }
-    }
-  }, [isListening]);
+export interface TunerReadout {
+  isListening: boolean;
+  toggleListening: () => void;
+  stringStatuses: StringStatus[];
+  /** Nearest string to what is being played right now. */
+  activeStatus: StringStatus | null;
+  /** Plain-language instruction — no cents required to understand it. */
+  instruction: TunerInstruction;
+  /** Detected fundamental in Hz, or `null` when there is no signal. */
+  pitch: number | null;
+  /** Detector confidence in the pitch, 0-1. */
+  confidence: number | null;
+  /** Error of the active string in cents (advanced view). */
+  activeCents: number | null;
+  /** True when the active string is within tolerance. */
+  inTune: boolean;
+  sample: PitchSample | null;
+  error: string | null;
+  config: TunerConfig;
+}
 
-  const detectPitch = () => {
-    if (!analyserRef.current || !isListening) return;
-    const analyser = analyserRef.current;
-    const buffer = new Float32Array(analyser.frequencyBinCount);
-    analyser.getFloatTimeDomainData(buffer);
+/**
+ * Guitar tuner built on the shared pitch tracker (McLeod Pitch Method via `pitchy`).
+ *
+ * There is exactly one pitch detector in this application; the tuner reuses it rather
+ * than running a second, weaker one. All note names are derived from the selected
+ * tuning's MIDI numbers, so alternative tunings label themselves correctly.
+ */
+export function useTuner(config: TunerConfig): TunerReadout {
+  const tuning: Tuning = TUNINGS[config.tuning] ?? STANDARD_TUNING;
 
-    // Simple autocorrelation pitch detection
-    let maxCorr = 0;
-    let period = 0;
-    for (let i = 1; i < buffer.length / 2; i++) {
-      let corr = 0;
-      for (let j = 0; j < buffer.length - i; j++) {
-        corr += buffer[j] * buffer[j + i];
-      }
-      if (corr > maxCorr) {
-        maxCorr = corr;
-        period = i;
-      }
-    }
+  const tracker = usePitchTracker({
+    clarityThreshold: 0.7,
+    minVolumeAbsolute: 0.005,
+    maxInputAmplitude: 1.0,
+    tuningToleranceCents: config.toleranceCents,
+  });
 
-    if (maxCorr > 0.1 && period > 0) {
-      const sampleRate = audioContextRef.current?.sampleRate || 44100;
-      const freq = sampleRate / period;
-      setPitch(freq);
-      updateStringStatuses(freq);
-    }
+  const detectedFreq = tracker.sample && tracker.sample.frequency > 0 ? tracker.sample.frequency : null;
 
-    animationRef.current = requestAnimationFrame(detectPitch);
-  };
-
-  const updateStringStatuses = (freq: number) => {
-    const TUNINGS: Record<string, number[]> = {
-      standard: [82.41, 110.00, 146.83, 196.00, 246.94, 329.63],
-      'drop-d': [73.42, 110.00, 146.83, 196.00, 246.94, 329.63],
-      dadgad: [73.42, 110.00, 146.83, 196.00, 164.81, 220.00],
-      'open-g': [73.42, 98.00, 146.83, 196.00, 246.94, 220.00],
-      'open-d': [73.42, 110.00, 146.83, 185.00, 196.00, 220.00],
-    };
-
-    const targetFreqs = TUNINGS[config.tuning] || TUNINGS.standard;
-    const noteNames = ['E2', 'A2', 'D3', 'G3', 'B3', 'E4'];
-
-    const statuses: StringStatus[] = targetFreqs.map((targetFreq: number, i: number) => {
-      const cents = freq > 0 ? Math.round(1200 * Math.log2(freq / targetFreq)) : null;
+  const stringStatuses = useMemo<StringStatus[]>(() => {
+    // tuning.notes is lowest-first (index 0 = string 6); display highest string first.
+    return tuning.notes.map((openMidi, index) => {
+      const string = 6 - index;
+      const targetFreq = noteToFrequency(openMidi);
+      const cents = detectedFreq === null ? null : Math.round(centsBetween(detectedFreq, targetFreq) ?? 0);
       return {
-        string: 6 - i,
-        note: noteNames[i],
+        string,
+        note: midiToNoteName(openMidi),
         targetFreq,
-        detectedFreq: freq,
+        detectedFreq,
         cents,
         inTune: cents !== null && Math.abs(cents) <= config.toleranceCents,
+        active: false,
       };
     });
+  }, [tuning, detectedFreq, config.toleranceCents]);
 
-    setStringStatuses(statuses);
-  };
+  const activeStatus = useMemo<StringStatus | null>(() => {
+    if (detectedFreq === null) return null;
+    let nearest: StringStatus | null = null;
+    let nearestAbs = Number.POSITIVE_INFINITY;
+    for (const status of stringStatuses) {
+      const abs = Math.abs(status.cents ?? Number.POSITIVE_INFINITY);
+      if (abs < nearestAbs) {
+        nearestAbs = abs;
+        nearest = status;
+      }
+    }
+    if (!nearest) return null;
+    return { ...nearest, active: true };
+  }, [stringStatuses, detectedFreq]);
+
+  const activeCents = activeStatus?.cents ?? null;
+  const inTune = activeCents !== null && Math.abs(activeCents) <= config.toleranceCents;
+
+  const instruction: TunerInstruction =
+    detectedFreq === null
+      ? tracker.isActive
+        ? 'Play a string'
+        : 'Listening…'
+      : inTune
+        ? 'Perfect'
+        : (activeCents ?? 0) > 0
+          ? 'Tune down'
+          : 'Tune up';
+
+  const toggleListening = useCallback(() => {
+    if (tracker.isActive) {
+      tracker.stop();
+    } else {
+      void tracker.start();
+    }
+  }, [tracker.isActive, tracker.start, tracker.stop]);
 
   return {
-    isListening,
+    isListening: tracker.isActive,
     toggleListening,
-    stringStatuses,
-    pitch,
+    stringStatuses: activeStatus
+      ? stringStatuses.map((status) => (status.string === activeStatus.string ? activeStatus : status))
+      : stringStatuses,
+    activeStatus,
+    instruction,
+    pitch: detectedFreq,
+    confidence: tracker.sample ? tracker.sample.clarity : null,
+    activeCents,
+    inTune,
+    sample: tracker.sample,
+    error: tracker.error,
     config,
   };
 }
