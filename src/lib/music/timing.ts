@@ -1,4 +1,4 @@
-import { SongSection, LyricLine, Syllable } from '@/types/song';
+import type { SongSection, LyricLine, Syllable } from '@/types/song';
 import { SECTION_TIMINGS } from '@/data/timings';
 
 export interface TimedSyllable extends Syllable {

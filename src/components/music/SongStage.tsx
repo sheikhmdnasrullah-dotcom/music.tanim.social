@@ -2,7 +2,6 @@
 
 import { useSongPlayer } from '@/state/SongPlayerContext';
 import { PitchVisualizer } from './PitchVisualizer';
-import { cn } from '@/lib/utils';
 
 export function SongStage() {
   const { lines, currentLineId, activeLineId, isPlaying, section } = useSongPlayer();

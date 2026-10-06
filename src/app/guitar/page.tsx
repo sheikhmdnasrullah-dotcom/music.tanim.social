@@ -53,91 +53,94 @@ export default function GuitarHubPage() {
   const { state } = useProgress();
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Guitar</h1>
-        <p className="text-muted-foreground max-w-2xl leading-relaxed">
-          &ldquo;Before I Learned the Words&rdquo; is played with a capo on the 2nd fret. The
-          guitar side is a pillar of the workbook, not an add-on: 12 chords, one strum pattern,
-          and a verse chain you can carry into the whole song.
+    <div className="max-w-2xl mx-auto px-4 pt-12 pb-24">
+      <div className="mb-10">
+        <h1 className="font-display text-3xl tracking-tight mb-2">Guitar</h1>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-lg">
+          Capo on the 2nd fret. The guitar side is a pillar of the workbook: 12 chords, one
+          strum pattern, and a verse chain you can carry into the whole song.
         </p>
-      </header>
+      </div>
 
-      {/* Setup */}
-      <section className="border border-border rounded-2xl p-5 bg-muted/30 space-y-3">
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
-          Before you start
-        </h2>
-        <div className="grid md:grid-cols-3 gap-4 text-sm leading-relaxed">
-          <div>
-            <div className="font-semibold mb-1">Capo</div>
-            <p className="text-muted-foreground">{GUITAR_SETUP.capo}</p>
+      <div className="space-y-8">
+        {/* Setup */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+            Before you start
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4 text-sm leading-relaxed">
+            <div>
+              <div className="font-medium mb-0.5">Capo</div>
+              <p className="text-muted-foreground">{GUITAR_SETUP.capo}</p>
+            </div>
+            <div>
+              <div className="font-medium mb-0.5">Tuning</div>
+              <p className="text-muted-foreground">{GUITAR_SETUP.strings}</p>
+            </div>
+            <div>
+              <div className="font-medium mb-0.5">Strum hand</div>
+              <p className="text-muted-foreground">{GUITAR_SETUP.strumHand}</p>
+            </div>
           </div>
-          <div>
-            <div className="font-semibold mb-1">Tuning</div>
-            <p className="text-muted-foreground">{GUITAR_SETUP.strings}</p>
-          </div>
-          <div>
-            <div className="font-semibold mb-1">Strum hand</div>
-            <p className="text-muted-foreground">{GUITAR_SETUP.strumHand}</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Chord strip */}
-      <section>
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">
-          The 12 chords, in learning order
-        </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
-          {SONG_CHORD_ORDER.map((id, i) => {
-            const chord = CHORDS.find((c) => c.id === id);
-            if (!chord) return null;
-            const rec = state.items[`chord:${id}`];
-            const done = rec && (rec.mastery === 'mastered' || rec.mastery === 'solid');
-            const started = rec && rec.attempts > 0 && !done;
-            return (
+        {/* Chord strip */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+            The 12 chords, in learning order
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1.5">
+            {SONG_CHORD_ORDER.map((id, i) => {
+              const chord = CHORDS.find((c) => c.id === id);
+              if (!chord) return null;
+              const rec = state.items[`chord:${id}`];
+              const done = rec && (rec.mastery === 'mastered' || rec.mastery === 'solid');
+              const started = rec && rec.attempts > 0 && !done;
+              return (
+                <Link
+                  key={id}
+                  href={`/guitar/chords?chord=${id}`}
+                  className={cn(
+                    'border rounded-lg p-3 text-center transition-colors',
+                    done
+                      ? 'border-foreground bg-foreground text-white'
+                      : started
+                        ? 'border-foreground bg-white'
+                        : 'border-border bg-white hover:border-neutral-400',
+                  )}
+                >
+                  <div className="text-[10px] font-mono opacity-60">{i + 1}</div>
+                  <div className="font-semibold text-sm">{prettyChord(id)}</div>
+                  <div className={cn('text-[10px] mt-0.5', done ? 'text-white/70' : 'text-muted-foreground')}>
+                    {done ? 'solid' : started ? 'learning' : difficultyLabel(chord.difficulty)}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Tools */}
+        <section className="space-y-3">
+          <h2 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+            Tools
+          </h2>
+          <div className="grid md:grid-cols-2 gap-2">
+            {TOOLS.map((tool) => (
               <Link
-                key={id}
-                href={`/guitar/chords?chord=${id}`}
-                className={cn(
-                  'border rounded-xl p-3 text-center transition-colors',
-                  done
-                    ? 'border-foreground bg-foreground text-white'
-                    : started
-                      ? 'border-foreground bg-white'
-                      : 'border-border bg-white hover:border-neutral-400',
-                )}
+                key={tool.href}
+                href={tool.href}
+                className="group block border border-border rounded-lg p-4 hover:border-foreground transition-colors"
               >
-                <div className="text-[10px] font-mono opacity-60">{i + 1}</div>
-                <div className="font-bold text-base">{prettyChord(id)}</div>
-                <div className={cn('text-[11px] mt-0.5', done ? 'text-white/70' : 'text-muted-foreground')}>
-                  {done ? 'solid' : started ? 'learning' : difficultyLabel(chord.difficulty)}
+                <div className="font-semibold text-sm mb-0.5 group-hover:text-foreground transition-colors">
+                  {tool.title}
                 </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{tool.desc}</p>
               </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Tools */}
-      <section>
-        <h2 className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-3">
-          Tools
-        </h2>
-        <div className="grid md:grid-cols-2 gap-3">
-          {TOOLS.map((tool) => (
-            <Link
-              key={tool.href}
-              href={tool.href}
-              className="border border-border rounded-2xl p-5 bg-white hover:border-foreground transition-colors"
-            >
-              <div className="font-bold text-lg mb-1">{tool.title}</div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{tool.desc}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

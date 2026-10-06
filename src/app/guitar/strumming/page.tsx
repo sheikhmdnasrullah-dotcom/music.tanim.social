@@ -8,7 +8,7 @@ import { Metronome, tapTempoBpm } from '@/lib/audio/metronome';
 import { getAudioContext } from '@/lib/audio/guitar-synth';
 import { useProgress } from '@/state/ProgressContext';
 import { useSongPlayer } from '@/state/SongPlayerContext';
-import { AudioPlayer } from '@/components/music/AudioPlayer';
+import { StudioPlayer } from '@/components/music/StudioPlayer';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -242,7 +242,7 @@ function StrummingTrainer() {
 
         {stage.id === 'stage-3' && (
           <div className="space-y-3">
-            <AudioPlayer />
+            <StudioPlayer />
             <p className="text-xs text-muted-foreground">
               Start the metronome and the 60 BPM guide together, then follow the recording for a
               full loop.

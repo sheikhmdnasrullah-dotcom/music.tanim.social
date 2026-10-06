@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import type { PracticeMode } from '@/state/SongPlayerContext';
 import { useSongPlayer } from '@/state/SongPlayerContext';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -39,8 +40,6 @@ export function StudioPlayer() {
     seekToTime,
     loopMode,
     setLoopMode,
-    stems,
-    setStemVolume,
     isRecording,
     startRecording,
     stopRecording,
@@ -348,7 +347,7 @@ function PracticePopover({ onClose }: { onClose: () => void }) {
           <button
             key={opt.label}
             onClick={() => {
-              setMode(opt.mode as any);
+                setMode(opt.mode as PracticeMode);
               onClose();
             }}
             className={cn(

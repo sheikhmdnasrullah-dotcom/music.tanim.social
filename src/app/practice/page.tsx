@@ -11,6 +11,8 @@ import { StudioPlayer } from '@/components/music/StudioPlayer';
 import { SongStage } from '@/components/music/SongStage';
 import { SectionNav } from '@/components/music/SectionNav';
 import { LineList } from '@/components/music/LineList';
+import { SingCheck } from '@/components/music/SingCheck';
+import { WhyItWorks } from '@/components/learner/WhyItWorks';
 import { Button } from '@/components/ui/button';
 
 function PracticeRoom() {
@@ -173,6 +175,12 @@ function PracticeRoom() {
             )}
           </div>
         </div>
+
+        <div className="space-y-3 pt-6 border-t border-border">
+          <SingCheck />
+        </div>
+
+        <WhyItWorks />
 
         {lineChord && (
           <div className="space-y-2">

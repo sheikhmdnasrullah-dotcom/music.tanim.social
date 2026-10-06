@@ -1,4 +1,4 @@
-import { Song, SongSection, Syllable, Note } from '@/types/song';
+import type { Song, SongSection, Syllable, Note } from '@/types/song';
 import { SECTION_ORDER, SECTION_TIMINGS } from '@/data/timings';
 
 const NOTE_FREQUENCIES: Record<string, number> = {

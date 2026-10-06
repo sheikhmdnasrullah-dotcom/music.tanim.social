@@ -10,20 +10,21 @@ export function SyllablePills({ lineId }: { lineId?: string }) {
   const line = lines.find((l) => l.id === targetId) ?? lines[0];
   if (!line) return null;
 
-  const dur = Math.max(0.01, line.duration);
-  const lineRelTime = currentTime >= line.startTime ? currentTime - line.startTime : currentTime;
+  const lineRelTime = Math.max(0, currentTime - line.absoluteStart);
 
+  const syls = line.timedSyllables;
   let activeIdx = -1;
-  line.syllables.forEach((syl, i) => {
-    const sStart = syl.startTime >= line.startTime ? syl.startTime - line.startTime : syl.startTime;
-    if (lineRelTime >= sStart && lineRelTime < sStart + syl.duration) {
+  syls.forEach((syl, i) => {
+    const sStart = Math.max(0, syl.absoluteStart - line.absoluteStart);
+    const sEnd = Math.max(sStart, syl.absoluteEnd - line.absoluteStart);
+    if (lineRelTime >= sStart && lineRelTime < sEnd) {
       activeIdx = i;
     }
   });
 
   return (
     <div className="flex flex-wrap gap-1.5 justify-center mt-4" aria-label="Syllables" aria-live="polite">
-      {line.syllables.map((syl, i) => (
+      {syls.map((syl, i) => (
         <span
           key={i}
           className={cn(

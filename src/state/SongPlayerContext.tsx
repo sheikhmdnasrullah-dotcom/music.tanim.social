@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 import { SONG } from '@/data/song';
 import type { SongSection, PracticeMode } from '@/types/song';
+export type { PracticeMode } from '@/types/song';
 import {
   buildSectionTiming,
   findLineAtTime,
