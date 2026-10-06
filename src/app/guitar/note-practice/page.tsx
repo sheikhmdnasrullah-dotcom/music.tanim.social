@@ -11,14 +11,14 @@ interface NotePracticeState {
   detectedString: GuitarString | null;
   detectedFret: number | null;
   confidence: number;
-  isCorrect: boolean | null;
+  isCorrect: boolean;
   feedback: string;
   attempts: number;
   correctStreak: number;
 }
 
 export default function NotePracticePage() {
-  const { state } = useProgress();
+  const { state: progressState } = useProgress();
   const [sectionId, setSectionId] = useState(SONG.sections[0].id);
   const [lineIndex, setLineIndex] = useState(0);
   const [syllableIndex, setSyllableIndex] = useState(0);
@@ -31,14 +31,13 @@ export default function NotePracticePage() {
     return <div>No syllable available</div>;
   }
 
-  const pitchRef = useRef<number | null>(null);
   const [practiceState, setPracticeState] = useState<NotePracticeState>({
     isListening: false,
     detectedNote: null,
     detectedString: null,
     detectedFret: null,
     confidence: 0,
-    isCorrect: null,
+    isCorrect: false,
     feedback: 'Select a section and line to begin practice',
     attempts: 0,
     correctStreak: 0,
@@ -79,19 +78,19 @@ export default function NotePracticePage() {
         const isMatch = ident.string === targetString && ident.fret === targetFret;
         const confidence = ident.confidence;
         let feedback = '';
-        let isCorrect: boolean | null = false;
+        let correct = false;
 
         if (confidence > 0.7) {
           if (isMatch) {
             feedback = 'Great! You played ' + (ident.noteName || '?') + ' on string ' + ident.string + ' fret ' + ident.fret + '.';
-            isCorrect = true;
+            correct = true;
           } else {
             feedback = 'Detected ' + (ident.noteName || '?') + ' on string ' + ident.string + ' fret ' + ident.fret + ', but target was string ' + targetString + ' fret ' + targetFret + '. Keep trying!';
-            isCorrect = false;
+            correct = false;
           }
         } else {
           feedback = 'Detected ' + (ident.noteName || '?') + ' — low confidence. Play clearer.';
-          isCorrect = null;
+          correct = false;
         }
 
         setPracticeState((prev) => ({
@@ -100,10 +99,10 @@ export default function NotePracticePage() {
           detectedString: ident.string,
           detectedFret: ident.fret,
           confidence: ident.confidence,
-          isCorrect,
+          isCorrect: correct,
           feedback,
           attempts: prev.attempts + 1,
-          correctStreak: isCorrect ? (prev.correctStreak + 1) : 0,
+          correctStreak: correct ? (prev.correctStreak + 1) : 0,
         }));
       },
     });
@@ -120,7 +119,7 @@ export default function NotePracticePage() {
 
   const toggleListening = useCallback(() => {
     setPracticeState((prev) => ({ ...prev, isListening: !prev.isListening }));
-  }, [practiceState.isListening]);
+  }, []);
 
   // Re-apply listening state after state update
   useEffect(() => {
@@ -153,7 +152,7 @@ export default function NotePracticePage() {
       detectedString: null,
       detectedFret: null,
       confidence: 0,
-      isCorrect: null,
+      isCorrect: false,
       feedback: 'Select a section and line to begin practice',
       attempts: 0,
       correctStreak: 0,
@@ -202,7 +201,7 @@ export default function NotePracticePage() {
         <p className='font-medium text-primary'>{practiceState.feedback}</p>
       </div>
 
-      {practiceState.isCorrect !== null && practiceState.isCorrect && practiceState.confidence > 0.7 && (
+      {practiceState.isCorrect && practiceState.confidence > 0.7 && (
         <div className='bg-primary/10 border border-primary rounded-md p-3 mb-4'>
           <p className='text-primary font-medium'>Correct!</p>
           <p className='text-sm'>{practiceState.feedback}</p>
