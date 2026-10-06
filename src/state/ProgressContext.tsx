@@ -42,8 +42,11 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setState(loadProgress());
-    setLoaded(true);
+    const frame = requestAnimationFrame(() => {
+      setState(loadProgress());
+      setLoaded(true);
+    });
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {

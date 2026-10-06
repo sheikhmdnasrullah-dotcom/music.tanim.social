@@ -15,7 +15,6 @@ interface TunerStringRowProps {
 export function TunerStringRow({ status, toleranceCents }: TunerStringRowProps) {
   const cents = status.cents;
   const isSharp = cents !== null && cents > 0;
-  const isFlat = cents !== null && cents < 0;
   const hasSignal = cents !== null;
   const tuned = hasSignal && Math.abs(cents) <= toleranceCents;
 

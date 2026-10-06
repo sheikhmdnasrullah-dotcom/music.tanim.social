@@ -51,7 +51,6 @@ export function ChordDiagram({ chord, highlightFinger = null, capo = 2, classNam
       {/* Strings */}
       {STRING_X.map((x, i) => {
         const stringNum = i + 1; // 1..6
-        const muted = chord.frets[5 - i] === -1;
         return (
           <line
             key={stringNum}

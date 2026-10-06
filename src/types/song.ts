@@ -41,6 +41,7 @@ export interface SongSection {
 
 export interface Song {
   id: string;
+  canonicalSongVersion: string;
   title: string;
   artist: string;
   bpm: number;

@@ -70,7 +70,8 @@ export function useTuner(config: TunerConfig): TunerReadout {
     tuningToleranceCents: config.toleranceCents,
   });
 
-  const detectedFreq = tracker.sample && tracker.sample.frequency > 0 ? tracker.sample.frequency : null;
+  const { isActive, start, stop, sample, error } = tracker;
+  const detectedFreq = sample && sample.frequency > 0 ? sample.frequency : null;
 
   const stringStatuses = useMemo<StringStatus[]>(() => {
     // tuning.notes is lowest-first (index 0 = string 6); display highest string first.
@@ -110,7 +111,7 @@ export function useTuner(config: TunerConfig): TunerReadout {
 
   const instruction: TunerInstruction =
     detectedFreq === null
-      ? tracker.isActive
+      ? isActive
         ? 'Play a string'
         : 'Listening…'
       : inTune
@@ -120,15 +121,15 @@ export function useTuner(config: TunerConfig): TunerReadout {
           : 'Tune up';
 
   const toggleListening = useCallback(() => {
-    if (tracker.isActive) {
-      tracker.stop();
+    if (isActive) {
+      stop();
     } else {
-      void tracker.start();
+      void start();
     }
-  }, [tracker.isActive, tracker.start, tracker.stop]);
+  }, [isActive, start, stop]);
 
   return {
-    isListening: tracker.isActive,
+    isListening: isActive,
     toggleListening,
     stringStatuses: activeStatus
       ? stringStatuses.map((status) => (status.string === activeStatus.string ? activeStatus : status))
@@ -136,11 +137,11 @@ export function useTuner(config: TunerConfig): TunerReadout {
     activeStatus,
     instruction,
     pitch: detectedFreq,
-    confidence: tracker.sample ? tracker.sample.clarity : null,
+    confidence: sample ? sample.clarity : null,
     activeCents,
     inTune,
-    sample: tracker.sample,
-    error: tracker.error,
+    sample,
+    error,
     config,
   };
 }

@@ -1,4 +1,4 @@
-import { Song, SongSection, LyricLine, Syllable, Note } from '@/types/song';
+import { Song, SongSection, Syllable, Note } from '@/types/song';
 import { SECTION_ORDER, SECTION_TIMINGS } from '@/data/timings';
 
 const NOTE_FREQUENCIES: Record<string, number> = {
@@ -16,6 +16,7 @@ function syl(text: string, name: string, midi: number, start: number, dur: numbe
 
 const RAW_SONG: Song = {
   id: 'before-i-learned-the-words',
+  canonicalSongVersion: '1.0.0',
   title: 'Before I Learned the Words',
   artist: 'Personal Project',
   bpm: 80,
@@ -995,5 +996,3 @@ export function getSectionAudio(
   if (voice === 'mix') return section.fullMixAudioFile || `/audio/canonical/${section.id}_full_mix.wav`;
   return section.audioFile || `/audio/canonical/${section.id}_guide_vocal.wav`;
 }
-
-

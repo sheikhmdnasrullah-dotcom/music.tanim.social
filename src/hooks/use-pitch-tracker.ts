@@ -298,7 +298,7 @@ export function usePitchTracker(config: PitchTrackerConfig = {}) {
       });
       eventsRef.current.onActiveChanged?.(false);
     }
-  }, []);
+  }, [gateNoteOnset, releaseNoteIfSilent]);
 
   const stopRef = useRef(stop);
   useEffect(() => {

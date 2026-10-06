@@ -32,7 +32,7 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: React.PropsWithChildren<{}>) {
+export default function RootLayout({ children }: React.PropsWithChildren<Record<string, unknown>>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">

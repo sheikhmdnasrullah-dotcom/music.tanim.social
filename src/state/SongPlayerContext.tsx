@@ -101,6 +101,13 @@ export function syllableAtTime(line: LyricLine | null, t: number) {
   return null;
 }
 
+type PitchPreservingAudio = HTMLAudioElement & { preservesPitch?: boolean };
+
+function preservePitch(audio: HTMLAudioElement) {
+  const media = audio as PitchPreservingAudio;
+  if ('preservesPitch' in media) media.preservesPitch = true;
+}
+
 export function SongPlayerProvider({ children }: { children: React.ReactNode }) {
   const [sectionId, setSectionIdState] = useState(SONG.sections[0].id);
   const [mode, setModeState] = useState<PracticeMode>('guide');
@@ -141,6 +148,9 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
 
   const rafRef = useRef<number>(0);
   const isSeekingRef = useRef(false);
+  const playRef = useRef<() => void>(() => undefined);
+  const pauseRef = useRef<() => void>(() => undefined);
+  const seekRef = useRef<(time: number) => void>(() => undefined);
 
   // Active section data
   const currentSection = sectionById(sectionId);
@@ -157,8 +167,7 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
 
     [vocal, inst, melody, user].forEach((a) => {
       a.preload = 'auto';
-      // @ts-ignore
-      if (a.preservesPitch !== undefined) a.preservesPitch = true;
+      preservePitch(a);
     });
 
     audioVocalRef.current = vocal;
@@ -176,8 +185,8 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
 
     const onEnded = () => {
       if (loopMode === 'section') {
-        seekToTime(0);
-        play();
+        seekRef.current(0);
+        playRef.current();
       } else {
         setIsPlaying(false);
         setCurrentTime(0);
@@ -239,23 +248,10 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
     [audioVocalRef.current, audioInstRef.current, audioMelodyRef.current, audioUserRef.current].forEach((a) => {
       if (a) {
         a.playbackRate = rate;
-        // @ts-ignore
-        if (a.preservesPitch !== undefined) a.preservesPitch = true;
+        preservePitch(a);
       }
     });
   }, [tempo, guideSpeed]);
-
-  // Change section
-  const setSection = useCallback(
-    (id: string) => {
-      pause();
-      setSectionIdState(id);
-      setCurrentTime(0);
-      setActiveLineId(null);
-      loadSectionStems(id);
-    },
-    [loadSectionStems],
-  );
 
   // Initial load
   useEffect(() => {
@@ -299,11 +295,6 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
     else play();
   }, [isPlaying, play, pause]);
 
-  const stop = useCallback(() => {
-    pause();
-    seekToTime(0);
-  }, [pause]);
-
   const seekToTime = useCallback((t: number) => {
     isSeekingRef.current = true;
     const clamped = Math.max(0, t);
@@ -315,6 +306,29 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
       isSeekingRef.current = false;
     }, 50);
   }, []);
+
+  const stop = useCallback(() => {
+    pause();
+    seekToTime(0);
+  }, [pause, seekToTime]);
+
+  useEffect(() => {
+    playRef.current = play;
+    pauseRef.current = pause;
+    seekRef.current = seekToTime;
+  }, [play, pause, seekToTime]);
+
+  // Change section
+  const setSection = useCallback(
+    (id: string) => {
+      pauseRef.current();
+      setSectionIdState(id);
+      setCurrentTime(0);
+      setActiveLineId(null);
+      loadSectionStems(id);
+    },
+    [loadSectionStems],
+  );
 
   const seekToLine = useCallback(
     (lineId: string) => {

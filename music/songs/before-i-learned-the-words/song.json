@@ -1,0 +1,128 @@
+{
+  "canonicalSongVersion": "1.0.0",
+  "id": "before-i-learned-the-words",
+  "title": "Before I Learned the Words",
+  "canonicalSource": "Before I Learned the Words — Song Project",
+  "metadata": {
+    "bpm": 80,
+    "key": "D minor",
+    "timeSignature": "4/4",
+    "capo": "Not yet defined",
+    "tuning": "Not yet defined"
+  },
+  "sections": [
+    {
+      "id": "verse-1",
+      "name": "Verse 1",
+      "lines": [
+        "The coffee's going cold beside the rain",
+        "I'm at the table, sitting here again",
+        "Across from where you used to be",
+        "I almost said your name into the room",
+        "A habit that the morning doesn't cure",
+        "It only finds me when I'm on my own"
+      ]
+    },
+    {
+      "id": "pre-chorus-1",
+      "name": "Pre-Chorus 1",
+      "lines": [
+        "And I don't know how you did it",
+        "Turned an ordinary room",
+        "Into something I can't sit in",
+        "Without looking up for you"
+      ]
+    },
+    {
+      "id": "chorus-1",
+      "name": "Chorus 1",
+      "lines": [
+        "You turned into a memory",
+        "Before I learned the words",
+        "And everything I meant to say",
+        "Just lives here, getting worse",
+        "The rain still finds the window",
+        "Where your coffee used to cool"
+      ]
+    },
+    {
+      "id": "verse-2",
+      "name": "Verse 2",
+      "lines": [
+        "You held my hand before I asked you to",
+        "And let your head fall softly in the rain",
+        "We had a song — you said this one is ours",
+        "I hear it now in rooms where no one's sitting",
+        "It plays for no one, and I keep on listening",
+        "For your voice somewhere between the chords"
+      ]
+    },
+    {
+      "id": "pre-chorus-2",
+      "name": "Pre-Chorus 2",
+      "lines": [
+        "And I should've known by then",
+        "That nothing made of rain could stay",
+        "Some people pass like weather",
+        "Close enough to feel, too far to save"
+      ]
+    },
+    {
+      "id": "bridge",
+      "name": "Bridge",
+      "lines": [
+        "I didn't know the last time was the last",
+        "Your hand in mine — and then it wasn't",
+        "And everything I'd saved to tell you",
+        "Lived and died inside a breath",
+        "I held you like tomorrow",
+        "Was a thing that still belonged to us"
+      ]
+    },
+    {
+      "id": "final-chorus",
+      "name": "Final Chorus",
+      "lines": [
+        "You turned into a memory",
+        "Before I learned the words",
+        "And everything I meant to say",
+        "Still lives here — getting worse",
+        "The rain still finds the window",
+        "Where your chair still holds your shape",
+        "You left me mid-conversation",
+        "And I'm still…",
+        "Talking to you"
+      ]
+    },
+    {
+      "id": "outro",
+      "name": "Outro",
+      "lines": [
+        "And when it rains...",
+        "I still sit across from you"
+      ]
+    }
+  ],
+  "audio": {
+    "root": "/audio/canonical",
+    "requiredStems": [
+      "guide_vocal",
+      "instrumental",
+      "melody_ref",
+      "user_voice",
+      "full_mix"
+    ],
+    "fullSong": [
+      "full_song_guide_vocal.wav",
+      "full_song_instrumental.wav",
+      "full_song_melody_ref.wav",
+      "full_song_user_voice.wav",
+      "full_song_full_mix.wav"
+    ]
+  },
+  "integrity": {
+    "editableInApp": false,
+    "generatedVariationsMustUseSeparateIds": true,
+    "sourceOfTruth": "This file plus the locked melody/timing fields in src/data/song.ts. Generated audio must never overwrite either."
+  }
+}

@@ -57,9 +57,12 @@ function StrummingTrainer() {
   }, [bpm]);
 
   useEffect(() => {
-    setStreak(0);
-    setOffset(null);
-    setBeat(-1);
+    const frame = requestAnimationFrame(() => {
+      setStreak(0);
+      setOffset(null);
+      setBeat(-1);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [stage.id]);
 
   const start = () => {
@@ -297,4 +300,3 @@ export default function GuitarStrummingPage() {
     </div>
   );
 }
-

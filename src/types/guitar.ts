@@ -213,7 +213,7 @@ export interface GuitarEngine {
   setLoop(start: number, end: number): void;
 
   on(event: 'note-on' | 'note-off' | 'chord-change' | 'position-change' | 'tempo-change' | 'section-change', handler: (event: GuitarEngineEvent) => void): void;
-  off(event: string, handler: Function): void;
+  off(event: string, handler: (event: GuitarEngineEvent) => void): void;
 }
 
 export interface GuitarEngineFactory {
