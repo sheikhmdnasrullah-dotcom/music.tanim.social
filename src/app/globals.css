@@ -13,6 +13,7 @@
   --destructive-foreground: #ffffff;
   --success: #15803d;
   --ring: #d97706;
+  --danger: #dc2626;
 }
 
 @theme inline {
