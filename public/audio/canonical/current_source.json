@@ -1,0 +1,32 @@
+{
+  "source": "yue2",
+  "candidate": "yue-01",
+  "seed": 42,
+  "source_file": "generations/short_test/yue-01/full_mix.flac",
+  "sample_rate": 48000,
+  "normalized": true,
+  "sections": [
+    {
+      "id": "verse-1",
+      "start": 0.0,
+      "end": 28.788,
+      "duration": 28.788,
+      "samples": 1381824
+    },
+    {
+      "id": "pre-chorus-1",
+      "start": 28.788,
+      "end": 42.683,
+      "duration": 13.895,
+      "samples": 666960
+    },
+    {
+      "id": "chorus-1",
+      "start": 42.683,
+      "end": 71.011,
+      "duration": 28.327999999999996,
+      "samples": 1359743
+    }
+  ],
+  "note": "YuE2 generates full mix; existing DSP stems preserved for instrumental/melody_ref/user_voice"
+}
