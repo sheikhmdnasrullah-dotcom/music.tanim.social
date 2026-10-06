@@ -1,0 +1,141 @@
+{
+ "audio_duration": 7.252,
+ "scale": 0.71,
+ "separators": [
+  [
+   2.263,
+   3.196
+  ]
+ ],
+ "lines": [
+  {
+   "line": 0,
+   "span": [
+    0.0,
+    2.263
+   ],
+   "midi": [
+    0.0,
+    3.375
+   ],
+   "cands": 14,
+   "expected": 4,
+   "mode": "onsets"
+  },
+  {
+   "line": 1,
+   "span": [
+    3.196,
+    7.252
+   ],
+   "midi": [
+    4.125,
+    9.75
+   ],
+   "cands": 18,
+   "expected": 7,
+   "mode": "onsets"
+  }
+ ],
+ "notes": [
+  {
+   "line": 0,
+   "i": 0,
+   "start": 0.058,
+   "end": 0.255,
+   "midi": 50,
+   "m_start": 0.0,
+   "m_end": 0.375
+  },
+  {
+   "line": 0,
+   "i": 1,
+   "start": 0.255,
+   "end": 0.464,
+   "midi": 52,
+   "m_start": 0.375,
+   "m_end": 0.75
+  },
+  {
+   "line": 0,
+   "i": 2,
+   "start": 0.464,
+   "end": 0.673,
+   "midi": 50,
+   "m_start": 0.75,
+   "m_end": 1.125
+  },
+  {
+   "line": 0,
+   "i": 3,
+   "start": 0.673,
+   "end": 2.263,
+   "midi": 48,
+   "m_start": 1.125,
+   "m_end": 3.375
+  },
+  {
+   "line": 1,
+   "i": 0,
+   "start": 3.254,
+   "end": 3.475,
+   "midi": 50,
+   "m_start": 4.125,
+   "m_end": 4.5
+  },
+  {
+   "line": 1,
+   "i": 1,
+   "start": 3.475,
+   "end": 3.73,
+   "midi": 50,
+   "m_start": 4.5,
+   "m_end": 4.875
+  },
+  {
+   "line": 1,
+   "i": 2,
+   "start": 3.73,
+   "end": 3.939,
+   "midi": 52,
+   "m_start": 4.875,
+   "m_end": 5.25
+  },
+  {
+   "line": 1,
+   "i": 3,
+   "start": 3.939,
+   "end": 4.276,
+   "midi": 50,
+   "m_start": 5.25,
+   "m_end": 5.625
+  },
+  {
+   "line": 1,
+   "i": 4,
+   "start": 4.276,
+   "end": 4.74,
+   "midi": 48,
+   "m_start": 5.625,
+   "m_end": 6.375
+  },
+  {
+   "line": 1,
+   "i": 5,
+   "start": 4.74,
+   "end": 5.367,
+   "midi": 50,
+   "m_start": 6.375,
+   "m_end": 6.75
+  },
+  {
+   "line": 1,
+   "i": 6,
+   "start": 5.367,
+   "end": 7.252,
+   "midi": 48,
+   "m_start": 6.75,
+   "m_end": 9.75
+  }
+ ]
+}
