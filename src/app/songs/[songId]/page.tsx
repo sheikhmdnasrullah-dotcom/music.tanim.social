@@ -88,6 +88,7 @@ function SongDetail({ songId }: { songId: string }) {
             <div className="flex flex-wrap gap-2">
               <Link
                 href={`/player?song=${song.id}`}
+                onClick={() => player.playSong(song.id)}
                 className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 active:scale-[0.98]"
               >
                 <Play className="h-4 w-4" fill="currentColor" />

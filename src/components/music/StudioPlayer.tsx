@@ -35,18 +35,20 @@ export function StudioPlayer() {
     isPlaying,
     togglePlay,
     stop,
-    currentTime,
-    duration,
-    seekToTime,
+    songTime,
+    songDuration,
+    seekToSongTime,
+    seekToPrevLine,
+    seekToNextLine,
     loopMode,
     setLoopMode,
     isRecording,
     startRecording,
     stopRecording,
     recordedAudioUrl,
-    lines,
-    currentLineId,
-    activeLineId,
+    section,
+    sectionId,
+    currentSong,
   } = useSongPlayer();
 
   const [showMix, setShowMix] = useState(false);
@@ -56,16 +58,19 @@ export function StudioPlayer() {
 
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  const progressPercent = duration > 0 ? Math.min(100, Math.max(0, (currentTime / duration) * 100)) : 0;
+  const progressPercent =
+    songDuration > 0 ? Math.min(100, Math.max(0, (songTime / songDuration) * 100)) : 0;
+
+  const sectionIndex = currentSong.sections.findIndex((s) => s.id === sectionId) + 1;
 
   const handleTimelineClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!timelineRef.current || duration <= 0) return;
+      if (!timelineRef.current || songDuration <= 0) return;
       const rect = timelineRef.current.getBoundingClientRect();
       const pos = (e.clientX - rect.left) / rect.width;
-      seekToTime(Math.max(0, Math.min(duration, pos * duration)));
+      seekToSongTime(Math.max(0, Math.min(songDuration, pos * songDuration)));
     },
-    [duration, seekToTime],
+    [songDuration, seekToSongTime],
   );
 
   const toggleRecording = useCallback(async () => {
@@ -75,24 +80,6 @@ export function StudioPlayer() {
       await startRecording();
     }
   }, [isRecording, startRecording, stopRecording]);
-
-  const nextLine = useCallback(() => {
-    const targetId = isPlaying ? currentLineId : activeLineId;
-    if (!targetId) return;
-    const currentLine = lines.find((l) => l.id === targetId);
-    if (!currentLine) return;
-    const idx = lines.findIndex((l) => l.id === targetId);
-    const next = lines[idx + 1];
-    if (next) seekToTime(next.startTime);
-  }, [lines, currentLineId, activeLineId, isPlaying, seekToTime]);
-
-  const prevLine = useCallback(() => {
-    const targetId = isPlaying ? currentLineId : activeLineId;
-    if (!targetId) return;
-    const idx = lines.findIndex((l) => l.id === targetId);
-    const prev = lines[idx - 1];
-    if (prev) seekToTime(prev.startTime);
-  }, [lines, currentLineId, activeLineId, isPlaying, seekToTime]);
 
   if (!isReady) {
     return (
@@ -107,6 +94,17 @@ export function StudioPlayer() {
 
   return (
     <div className="w-full">
+      {/* Section + Time */}
+      <div className="flex items-center justify-between text-[11px] font-mono text-muted-foreground tabular-nums mb-2">
+        <span>
+          {section.name}
+          <span className="ml-2 opacity-60">{sectionIndex} / {currentSong.sections.length}</span>
+        </span>
+        <span>
+          {fmt(songTime)} / {fmt(songDuration)}
+        </span>
+      </div>
+
       {/* Timeline */}
       <div
         ref={timelineRef}
@@ -129,19 +127,13 @@ export function StudioPlayer() {
         />
       </div>
 
-      {/* Time */}
-      <div className="flex justify-between text-[11px] font-mono text-muted-foreground tabular-nums mb-8">
-        <span>{fmt(currentTime)}</span>
-        <span>{fmt(duration)}</span>
-      </div>
-
       {/* Main Transport */}
       <div className="flex items-center justify-center gap-2 mb-5">
         <Button
           variant="ghost"
           size="sm"
           className="h-10 w-10 p-0"
-          onClick={prevLine}
+          onClick={seekToPrevLine}
           aria-label="Previous line"
         >
           <SkipBack className="h-4 w-4" />
@@ -164,7 +156,7 @@ export function StudioPlayer() {
           variant="ghost"
           size="sm"
           className="h-10 w-10 p-0"
-          onClick={nextLine}
+          onClick={seekToNextLine}
           aria-label="Next line"
         >
           <SkipForward className="h-4 w-4" />

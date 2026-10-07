@@ -3,7 +3,7 @@
 import { StudioPlayer } from '@/components/music/StudioPlayer';
 import { SongStage } from '@/components/music/SongStage';
 import { SectionNav } from '@/components/music/SectionNav';
-import { LineList } from '@/components/music/LineList';
+import { LyricsView } from '@/components/music/LyricsView';
 import { useSongPlayer } from '@/state/SongPlayerContext';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
@@ -27,7 +27,7 @@ function PlayerContent() {
     <div className="min-h-screen bg-background">
       <main className="w-full">
         <div className="max-w-2xl mx-auto px-6 pt-12 pb-32">
-          <div className="mb-16">
+          <div className="mb-12">
             <Link
               href="/"
               className="inline-block text-xs font-medium text-muted-foreground hover:text-foreground transition-colors mb-10"
@@ -39,7 +39,7 @@ function PlayerContent() {
                 {song.title}
               </h1>
               <p className="text-sm text-muted-foreground">
-                {song.sections[0]?.name} · {song.bpm} BPM · {song.key}
+                {song.bpm} BPM · {song.key} · {song.sections.length} sections
               </p>
             </div>
           </div>
@@ -49,13 +49,9 @@ function PlayerContent() {
 
             <StudioPlayer />
 
-            <div className="space-y-4">
-              <SectionNav />
-            </div>
+            <SectionNav />
 
-            <div className="space-y-1">
-              <LineList />
-            </div>
+            <LyricsView />
           </div>
         </div>
       </main>

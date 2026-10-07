@@ -30,6 +30,12 @@ function PracticeRoom() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [songId]);
 
+  useEffect(() => {
+    player.setAutoAdvance(false);
+    return () => player.setAutoAdvance(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const sectionId = params.get('section') ?? song.sections[0].id;
   const section = song.sections.find((s) => s.id === sectionId) ?? song.sections[0];
   const lineIndex = Math.max(
