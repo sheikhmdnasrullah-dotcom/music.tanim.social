@@ -9,8 +9,8 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { SONG } from '@/data/song';
-import type { SongSection, PracticeMode } from '@/types/song';
+import { SONG, getSongById } from '@/data/song';
+import type { Song, SongSection, PracticeMode } from '@/types/song';
 export type { PracticeMode } from '@/types/song';
 import {
   buildSectionTiming,
@@ -35,6 +35,8 @@ export interface StemVolumes {
 }
 
 export interface SongPlayerValue {
+  currentSongId: string;
+  currentSong: Song;
   sectionId: string;
   section: SongSection;
   mode: PracticeMode;
@@ -69,6 +71,7 @@ export interface SongPlayerValue {
   seekToLine: (lineId: string) => void;
   playLineOnly: (lineId: string) => void;
   loopLine: (lineId: string) => void;
+  setCurrentSong: (id: string) => void;
 
   // Recording
   isRecording: boolean;
@@ -87,10 +90,6 @@ export function useSongPlayer(): SongPlayerValue {
   return ctx;
 }
 
-function sectionById(id: string): SongSection {
-  return SONG.sections.find((s) => s.id === id) ?? SONG.sections[0];
-}
-
 type PitchPreservingAudio = HTMLAudioElement & { preservesPitch?: boolean };
 
 function preservePitch(audio: HTMLAudioElement) {
@@ -99,6 +98,7 @@ function preservePitch(audio: HTMLAudioElement) {
 }
 
 export function SongPlayerProvider({ children }: { children: React.ReactNode }) {
+  const [currentSongId, setCurrentSongId] = useState(SONG.id);
   const [sectionId, setSectionIdState] = useState(SONG.sections[0].id);
   const [mode, setModeState] = useState<PracticeMode>('guide');
   const [voiceSource, setVoiceSourceState] = useState<VoiceSource>('male');
@@ -114,7 +114,19 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
   const [currentSyllableText, setCurrentSyllableText] = useState<string | null>(null);
   const [currentNoteName, setCurrentNoteName] = useState<string | null>(null);
 
-  // Stems volumes
+  const currentSong = useMemo(() => {
+    if (currentSongId === SONG.id) return SONG;
+    return getSongById(currentSongId) ?? SONG;
+  }, [currentSongId]);
+
+  const sectionById = (id: string): SongSection => {
+    return currentSong.sections.find((s) => s.id === id) ?? currentSong.sections[0];
+  };
+
+  const currentSection = sectionById(sectionId);
+  const timing: SectionTiming = useMemo(() => buildSectionTiming(currentSection), [currentSection]);
+  const lines: TimedLine[] = timing.lines;
+
   const [stems, setStemsState] = useState<StemVolumes>({
     guideVocal: 0.9,
     instrumental: 0.85,
@@ -141,13 +153,6 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
   const playRef = useRef<() => void>(() => undefined);
   const pauseRef = useRef<() => void>(() => undefined);
   const seekRef = useRef<(time: number) => void>(() => undefined);
-
-  // Active section data. The timeline carries the real line/syllable timings
-  // derived from the guide-vocal audio (scripts/build-timings.mjs); the raw
-  // section.lines in song.ts still carry authoring placeholder times.
-  const currentSection = sectionById(sectionId);
-  const timing: SectionTiming = useMemo(() => buildSectionTiming(currentSection), [currentSection]);
-  const lines: TimedLine[] = timing.lines;
 
   // Master Audio Init
   useEffect(() => {
@@ -203,7 +208,7 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
 
   // Load section stems
   const loadSectionStems = useCallback((sid: string) => {
-    const sec = sectionById(sid);
+    const sec = currentSong.sections.find((s) => s.id === sid) ?? currentSong.sections[0];
     const vocal = audioVocalRef.current;
     const inst = audioInstRef.current;
     const melody = audioMelodyRef.current;
@@ -225,7 +230,7 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
     inst.load();
     melody.load();
     user.load();
-  }, []);
+  }, [currentSong]);
 
   // Update stem volumes on audio elements
   useEffect(() => {
@@ -323,6 +328,23 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
       loadSectionStems(id);
     },
     [loadSectionStems],
+  );
+
+  const setCurrentSong = useCallback(
+    (id: string) => {
+      if (id === currentSongId) return;
+      pauseRef.current();
+      const newSong = getSongById(id) ?? SONG;
+      setCurrentSongId(id);
+      setSectionIdState(newSong.sections[0].id);
+      setCurrentTime(0);
+      setActiveLineId(null);
+      setCurrentLineId(null);
+      setCurrentSyllableText(null);
+      setCurrentNoteName(null);
+      loadSectionStems(newSong.sections[0].id);
+    },
+    [currentSongId, loadSectionStems],
   );
 
   const seekToLine = useCallback(
@@ -503,6 +525,8 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
   }, [isRecording, pause]);
 
   const value: SongPlayerValue = {
+    currentSongId,
+    currentSong,
     sectionId,
     section: currentSection,
     mode,
@@ -536,6 +560,7 @@ export function SongPlayerProvider({ children }: { children: React.ReactNode }) 
     seekToLine,
     playLineOnly,
     loopLine,
+    setCurrentSong,
 
     isRecording,
     recordedAudioUrl,

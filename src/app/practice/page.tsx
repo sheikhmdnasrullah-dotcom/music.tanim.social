@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { SONG } from '@/data/song';
+import { getSongById } from '@/data/song';
 import { SECTION_PROGRESSIONS, chordForSectionLine } from '@/data/song-guitar';
 import { useSongPlayer } from '@/state/SongPlayerContext';
 import { useProgress } from '@/state/ProgressContext';
@@ -20,8 +20,18 @@ function PracticeRoom() {
   const player = useSongPlayer();
   const { state, record, endCurrentSession } = useProgress();
 
-  const sectionId = params.get('section') ?? SONG.sections[0].id;
-  const section = SONG.sections.find((s) => s.id === sectionId) ?? SONG.sections[0];
+  const songId = params.get('song') ?? player.currentSongId;
+  const song = getSongById(songId) ?? player.currentSong;
+
+  useEffect(() => {
+    if (songId !== player.currentSongId) {
+      player.setCurrentSong(songId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [songId]);
+
+  const sectionId = params.get('section') ?? song.sections[0].id;
+  const section = song.sections.find((s) => s.id === sectionId) ?? song.sections[0];
   const lineIndex = Math.max(
     0,
     Math.min((Number(params.get('line')) || 0), section.lines.length - 1),
@@ -53,9 +63,9 @@ function PracticeRoom() {
   };
 
   const goToLine = (sid: string, index: number) => {
-    const s = SONG.sections.find((x) => x.id === sid);
+    const s = song.sections.find((x) => x.id === sid);
     if (!s || index >= s.lines.length) return;
-    const url = `/practice?section=${sid}&line=${index}`;
+    const url = `/practice?song=${song.id}&section=${sid}&line=${index}`;
     window.history.replaceState(null, '', url);
     if (sid !== player.sectionId) player.setSection(sid);
     player.seekToLine(s.lines[index].id);
@@ -66,8 +76,8 @@ function PracticeRoom() {
       goToLine(section.id, lineIndex + 1);
       return;
     }
-    const i = SONG.sections.findIndex((s) => s.id === section.id);
-    const nextSection = SONG.sections[i + 1];
+    const i = song.sections.findIndex((s) => s.id === section.id);
+    const nextSection = song.sections[i + 1];
     if (nextSection) goToLine(nextSection.id, 0);
   };
 
@@ -76,8 +86,8 @@ function PracticeRoom() {
       goToLine(section.id, lineIndex - 1);
       return;
     }
-    const i = SONG.sections.findIndex((s) => s.id === section.id);
-    const prevSection = SONG.sections[i - 1];
+    const i = song.sections.findIndex((s) => s.id === section.id);
+    const prevSection = song.sections[i - 1];
     if (prevSection) goToLine(prevSection.id, prevSection.lines.length - 1);
   };
 
@@ -105,7 +115,7 @@ function PracticeRoom() {
             variant="ghost"
             size="sm"
             onClick={prevLine}
-            disabled={section.id === SONG.sections[0].id && lineIndex === 0}
+            disabled={section.id === song.sections[0].id && lineIndex === 0}
             aria-label="Previous line"
           >
             Previous
@@ -118,7 +128,7 @@ function PracticeRoom() {
             size="sm"
             onClick={nextLine}
             disabled={
-              section.id === SONG.sections[SONG.sections.length - 1].id &&
+              section.id === song.sections[song.sections.length - 1].id &&
               lineIndex === section.lines.length - 1
             }
             aria-label="Next line"

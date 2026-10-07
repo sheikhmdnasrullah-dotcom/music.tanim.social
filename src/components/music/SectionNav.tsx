@@ -5,11 +5,13 @@ import { useSongPlayer } from '@/state/SongPlayerContext';
 import { cn } from '@/lib/utils';
 
 export function SectionNav() {
-  const { sectionId, setSection } = useSongPlayer();
+  const { currentSong, sectionId, setSection } = useSongPlayer();
+
+  const sections = currentSong ? currentSong.sections : SONG.sections;
 
   return (
     <nav className="flex gap-0.5 overflow-x-auto no-scrollbar" aria-label="Song sections">
-      {SONG.sections.map((section) => {
+      {sections.map((section) => {
         const active = section.id === sectionId;
         return (
           <button

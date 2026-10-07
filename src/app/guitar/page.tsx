@@ -1,9 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect } from 'react';
 import { CHORDS, difficultyLabel } from '@/data/chords';
 import { GUITAR_SETUP, SONG_CHORD_ORDER } from '@/data/song-guitar';
 import { useProgress } from '@/state/ProgressContext';
+import { useSongPlayer } from '@/state/SongPlayerContext';
 import { cn } from '@/lib/utils';
 
 function prettyChord(id: string): string {
@@ -49,16 +52,27 @@ const TOOLS = [
   },
 ];
 
-export default function GuitarHubPage() {
+function GuitarHubContent() {
+  const params = useSearchParams();
   const { state } = useProgress();
+  const player = useSongPlayer();
+  const songId = params.get('song');
+
+  useEffect(() => {
+    if (songId && songId !== player.currentSongId) {
+      player.setCurrentSong(songId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [songId]);
+
+  const song = player.currentSong;
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-12 pb-24">
       <div className="mb-10">
         <h1 className="font-display text-3xl tracking-tight mb-2">Guitar</h1>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-lg">
-          Capo on the 2nd fret. The guitar side is a pillar of the workbook: 12 chords, one
-          strum pattern, and a verse chain you can carry into the whole song.
+          {song.title} — {GUITAR_SETUP.capo}
         </p>
       </div>
 
@@ -142,5 +156,13 @@ export default function GuitarHubPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function GuitarHubPage() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl mx-auto px-4 py-8" />}>
+      <GuitarHubContent />
+    </Suspense>
   );
 }

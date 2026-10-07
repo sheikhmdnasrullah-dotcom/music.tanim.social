@@ -990,6 +990,12 @@ function withTimings(raw: Song): Song {
 
 export const SONG: Song = withTimings(RAW_SONG);
 
+export const songs = [SONG] as const;
+
+export function getSongById(id: string): Song | undefined {
+  return songs.find((s) => s.id === id);
+}
+
 /**
  * Length of `SONG.fullSongAudioFile`, measured from the file itself (213.039s).
  * Kept separate from `FULL_SONG_DURATION` on purpose: that one describes the

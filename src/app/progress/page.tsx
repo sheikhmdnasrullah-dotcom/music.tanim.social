@@ -172,7 +172,7 @@ export default function ProgressPage() {
         <div className="pt-4 border-t border-border">
           <div className="flex items-center justify-between gap-3">
             <div className="text-sm text-muted-foreground">Ready for the next thing?</div>
-            <Link href="/">
+            <Link href="/player">
               <Button size="sm">What do I do next?</Button>
             </Link>
           </div>

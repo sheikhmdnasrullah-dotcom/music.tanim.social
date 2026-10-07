@@ -11,6 +11,7 @@ import {
   sectionRequirements,
 } from '@/data/song-guitar';
 import { useProgress } from '@/state/ProgressContext';
+import { useSongPlayer } from '@/state/SongPlayerContext';
 import { cn } from '@/lib/utils';
 import { FullSongPlayer } from '@/components/music/FullSongPlayer';
 
@@ -38,6 +39,8 @@ function prettyChord(id: string): string {
 
 export default function SongPage() {
   const { state } = useProgress();
+  const { currentSong } = useSongPlayer();
+  const song = currentSong ?? SONG;
 
   const isSolidOf = (id: string) => {
     const r = state.items[id];
@@ -49,16 +52,16 @@ export default function SongPage() {
       <div className="mb-12">
         <h1 className="font-display text-3xl tracking-tight mb-2">The song</h1>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-lg">
-          {SONG.bpm} BPM in {SONG.key}, 4/4. Eight sections that loop: verse → pre-chorus →
+          {song.bpm} BPM in {song.key}, 4/4. Eight sections that loop: verse → pre-chorus →
           chorus, twice, then bridge, final chorus, and outro.
         </p>
       </div>
 
-      {SONG.fullSongAudioFile && (
+      {song.fullSongAudioFile && (
         <div className="mb-10">
           <FullSongPlayer
-            src={SONG.fullSongAudioFile}
-            title={`${SONG.title} — full song`}
+            src={song.fullSongAudioFile}
+            title={`${song.title} — full song`}
             durationLabel={formatClock(FULL_SONG_AUDIO_DURATION)}
             note={`A standalone AI-generated take of the whole song, ${formatClock(FULL_SONG_AUDIO_DURATION)} long. It is a separate arrangement from the practice stems — whose timeline runs ${formatClock(FULL_SONG_DURATION)} — so it plays start to finish without lyric highlighting. The section timings below belong to those practice stems, not to this recording.`}
           />
@@ -78,7 +81,7 @@ export default function SongPage() {
 
           <div className="space-y-4 text-sm text-muted-foreground leading-relaxed max-w-xl">
             <p>
-              “Before I Learned the Words” is an intimate, melancholic acoustic song about
+              &ldquo;Before I Learned the Words&rdquo; is an intimate, melancholic acoustic song about
               losing someone before you are emotionally ready to understand that they are
               leaving. It is not dramatic heartbreak or anger. It is the quiet aftermath:
               ordinary life continuing while someone who once filled every ordinary moment is
@@ -95,19 +98,19 @@ export default function SongPage() {
             <p>
               Keep the vocal close, vulnerable, and conversational. Let the verses breathe,
               let the chorus open without becoming theatrical, and strip the bridge back to
-              the most exposed realization: <em>“I didn’t know the last time was the last.”</em>
+              the most exposed realization: <em>&ldquo;I didn&rsquo;t know the last time was the last.&rdquo;</em>
               Warm fingerpicked or lightly strummed acoustic guitar should lead, with subtle
               piano, bass, and restrained organic percussion widening the emotional moments.
             </p>
           </div>
 
           <p className="border-l-2 border-accent pl-4 text-sm italic text-foreground leading-relaxed max-w-lg">
-            The final line, “I still sit across from you,” should feel almost whispered —
+            The final line, &ldquo;I still sit across from you,&rdquo; should feel almost whispered —
             leaving the listener with the rain, the room, and the empty chair.
           </p>
         </section>
 
-        {SONG.sections.map((section) => {
+        {song.sections.map((section) => {
           const prog = SECTION_PROGRESSIONS[section.id];
           const req = sectionRequirements(section.id);
           const missing: string[] = [];

@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import { Providers } from "@/state/Providers";
-import { AppNav } from "@/components/ui/AppNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,7 +46,6 @@ export default function RootLayout({ children }: React.PropsWithChildren<Record<
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Providers>
-          <AppNav />
           <main className="flex-1">{children}</main>
         </Providers>
       </body>
