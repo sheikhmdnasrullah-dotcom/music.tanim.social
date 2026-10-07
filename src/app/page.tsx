@@ -10,28 +10,24 @@ const AREAS = [
     hint: 'Listen',
     icon: Play,
     href: '/player',
-    description: 'Playback with stems, mix, and line-by-line scrubbing.',
   },
   {
     label: 'Practice',
     hint: 'Sing / Play',
     icon: Mic2,
     href: '/practice',
-    description: 'Line-by-line singing practice with pitch feedback.',
   },
   {
     label: 'My Songs',
     hint: 'Your music',
     icon: Music2,
     href: '/songs',
-    description: 'Your song library. Open any song to read lyrics or practice.',
   },
   {
     label: 'Guitar',
     hint: 'Learn guitar',
     icon: Guitar,
     href: '/guitar',
-    description: 'Chords, transitions, strumming, tuner, and more.',
   },
 ] as const;
 
@@ -68,27 +64,30 @@ export default function HomePage() {
               key={area.label}
               onClick={() => handleAreaClick(area.href)}
               className={[
-                'group relative flex flex-col justify-between text-left transition-colors',
-                'hover:bg-muted/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
+                'group relative flex flex-col justify-between text-left',
+                'transition-colors duration-200',
+                'hover:bg-muted/40',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
                 isLastRow ? 'border-b-0' : 'border-b',
                 isLastCol ? 'border-r-0' : 'border-r',
-                'p-8 md:p-12 lg:p-16',
+                'border-border',
+                'p-10 md:p-14 lg:p-20',
               ].join(' ')}
             >
-              <div className="space-y-8">
-                <span className="block text-[11px] font-semibold tracking-[0.25em] uppercase text-muted-foreground">
+              <div className="space-y-10">
+                <span className="block text-[11px] font-semibold tracking-[0.3em] uppercase text-muted-foreground">
                   {area.label}
                 </span>
-                <div className="flex items-center gap-3">
-                  <Icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
-                  <span className="text-sm text-muted-foreground transition-colors group-hover:text-foreground">
-                    {area.hint}
-                  </span>
-                </div>
+                <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight text-foreground leading-none">
+                  {area.label}
+                </h2>
               </div>
-              <p className="text-xs leading-relaxed text-muted-foreground/70 max-w-xs">
-                {area.description}
-              </p>
+              <div className="flex items-center gap-3">
+                <Icon className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
+                <span className="text-sm text-muted-foreground transition-colors group-hover:text-foreground">
+                  {area.hint}
+                </span>
+              </div>
             </button>
           );
         })}

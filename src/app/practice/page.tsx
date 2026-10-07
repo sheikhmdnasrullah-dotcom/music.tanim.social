@@ -95,8 +95,14 @@ function PracticeRoom() {
   const lineChord = chordForSectionLine(section.id, lineIndex + 1);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-12 pb-24">
+    <div className="max-w-2xl mx-auto px-6 pt-12 pb-32">
       <div className="mb-10">
+        <Link
+          href="/"
+          className="inline-block text-xs font-medium text-muted-foreground hover:text-foreground transition-colors mb-8"
+        >
+          Home
+        </Link>
         <p className="text-xs font-medium text-muted-foreground tracking-wide uppercase mb-1">
           Practice
         </p>

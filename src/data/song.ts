@@ -465,7 +465,7 @@ const RAW_SONG: Song = {
         },
         {
           id: 'v2-l3',
-          text: 'We had a song — you said this one is ours',
+          text: 'We had a song, you said this one is ours',
           voiceDirection: 'Audible pause after \'song\'. \'Ours\' sustained with slight warmth.',
           startTime: 0,
           duration: 0,
@@ -654,7 +654,7 @@ const RAW_SONG: Song = {
         },
         {
           id: 'br-l2',
-          text: 'Your hand in mine — and then it wasn\'t',
+          text: 'Your hand in mine, and then it wasn\'t',
           pronunciation: 'yur HAND in MYN — [2 beats silence] — und THEN it WAHZ-uhnt',
           visualContour: 'Rise to Mid — [2 BEATS SILENCE] — Drop Low',
           voiceDirection: 'Hold MINE, hold breath during 2 beats of complete silence, then drop softly on wasn\'t.',
@@ -810,7 +810,7 @@ const RAW_SONG: Song = {
         },
         {
           id: 'fc-l4',
-          text: 'Still lives here — getting worse',
+          text: 'Still lives here, getting worse',
           voiceDirection: 'Added pause on \'Still lives here\' gives devastating weight.',
           startTime: 0,
           duration: 0,

@@ -68,8 +68,14 @@ function GuitarHubContent() {
   const song = player.currentSong;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-12 pb-24">
+    <div className="max-w-2xl mx-auto px-6 pt-12 pb-32">
       <div className="mb-10">
+        <Link
+          href="/"
+          className="inline-block text-xs font-medium text-muted-foreground hover:text-foreground transition-colors mb-8"
+        >
+          Home
+        </Link>
         <h1 className="font-display text-3xl tracking-tight mb-2">Guitar</h1>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-lg">
           {song.title} — {GUITAR_SETUP.capo}

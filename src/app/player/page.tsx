@@ -7,6 +7,7 @@ import { LineList } from '@/components/music/LineList';
 import { useSongPlayer } from '@/state/SongPlayerContext';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
+import Link from 'next/link';
 
 function PlayerContent() {
   const params = useSearchParams();
@@ -25,18 +26,25 @@ function PlayerContent() {
   return (
     <div className="min-h-screen bg-background">
       <main className="w-full">
-        <div className="max-w-2xl mx-auto px-4 pt-16 pb-24">
-          {/* Song Header */}
-          <div className="mb-14 text-center space-y-1">
-            <h1 className="font-display text-3xl md:text-4xl tracking-tight text-foreground text-balance">
-              {song.title}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {song.sections[0]?.name} · {song.bpm} BPM · {song.key}
-            </p>
+        <div className="max-w-2xl mx-auto px-6 pt-12 pb-32">
+          <div className="mb-16">
+            <Link
+              href="/"
+              className="inline-block text-xs font-medium text-muted-foreground hover:text-foreground transition-colors mb-10"
+            >
+              Home
+            </Link>
+            <div className="text-center space-y-2">
+              <h1 className="font-display text-3xl md:text-4xl tracking-tight text-foreground text-balance">
+                {song.title}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {song.sections[0]?.name} · {song.bpm} BPM · {song.key}
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-10">
+          <div className="space-y-12">
             <SongStage />
 
             <StudioPlayer />
